@@ -1,0 +1,45 @@
+{
+  "machineName": "machine",
+  "scheduleName": "schedule",
+  "sheets": [
+    {
+      "sheetName": "Sheet 1",
+      "sheetIndex": 0,
+      "sheetVariables": [
+        {
+          "name": "Variable A",
+          "valueCellRow": 2,
+          "valueCellColumn": "B"
+        },
+        {
+          "name": "Variable B",
+          "valueCellRow": 3,
+          "valueCellColumn": "B",
+          "metaItems": [
+            {
+              "name": "Variable B1",
+              "valueCellRow": 4,
+              "valueCellColumn": "B"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sheetName": "Sheet 2",
+      "sheetIndex": 1,
+      "sheetVariables": [
+        {
+          "name": "Variable C",
+          "valueCellRow": 2,
+          "valueCellColumn": "C"
+        },
+        {
+          "name": "Variable D",
+          "valueCellRow": 3,
+          "valueCellColumn": "C"
+        }
+      ]
+    }
+  ]
+}

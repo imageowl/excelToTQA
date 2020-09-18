@@ -1,0 +1,45 @@
+{
+  "machineName": "Linac",
+  "scheduleName": "CTP504 Copy",
+  "sheets": [
+    {
+      "sheetName": "Sheet 1",
+      "sheetIndex": 0,
+      "sheetVariables": [
+        {
+          "name": "Geometric distortion [mm]",
+          "valueCellRow": 5,
+          "valueCellColumn": "B"
+        },
+        {
+          "name": "Slice thickness per wire ramp",
+          "valueCellRow": 5,
+          "valueCellColumn": "C",
+          "metaItems": [
+            {
+              "name": "Slice thickness",
+              "valueCellRow": 7,
+              "valueCellColumn": "C"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sheetName": "Sheet 2",
+      "sheetIndex": 1,
+      "sheetVariables": [
+        {
+          "name": "Spatial resolution [lp/cm]",
+          "valueCellRow": 3,
+          "valueCellColumn": "B"
+        },
+        {
+          "name": "HU constancy [HU]",
+          "valueCellRow": 3,
+          "valueCellColumn": "C"
+        }
+      ]
+    }
+  ]
+}
