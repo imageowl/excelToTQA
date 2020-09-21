@@ -22,10 +22,14 @@ def load_excel_file(excel_file, sheet_dict, sched_idx):
     wb = xlrd.open_workbook(excel_file)
 
     for sheet in sheet_dict:
-        print('')
+        excel_sheet = wb.sheet_by_name(sheet['sheetName'])
         for vars in sheet['sheetVariables']:
             var_id = tqa.get_variable_id_from_string(vars['name'], sched_idx)
-            variable_list.append({'id': var_id[0]})
+
+            column_int = abs(65-ord(vars['valueCellColumn'].upper()))
+            val = excel_sheet.cell_value(vars['valueCellRow']-1, column_int)
+
+            variable_list.append({'id': var_id[0], 'value': val})
 
     print(variable_list)
 
