@@ -5,6 +5,8 @@
     {
       "sheetName": "Sheet1",
       "sheetNumber": 1,
+      "dateCellRow": 2,
+      "dateCellColumn": "C",
       "sheetVariables": [
         {
           "name": "Geometric distortion [mm]",

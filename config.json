@@ -5,10 +5,12 @@
     {
       "sheetName": "Sheet 1",
       "sheetNumber": 1,
-      "machineCellRow": 0,
+      "machineCellRow": 1,
       "machineCellColumn": "A",
-      "scheduleCellRow": 0,
+      "scheduleCellRow": 1,
       "scheduleCellColumn": "B",
+      "dateCellRow": 1,
+      "dateCellColumn": "C",
       "sheetVariables": [
         {
           "name": "Variable A",
