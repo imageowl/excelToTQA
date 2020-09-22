@@ -1,7 +1,8 @@
+import datetime
 import sys
 import json
 import xlrd
-import datetime
+import os.path, time
 
 TQA_PATH = r'/Users/annafronhofer/PycharmProjects/pyTQA'
 sys.path.insert(0, TQA_PATH)
@@ -51,7 +52,7 @@ def load_excel_file(excel_file, config_file):
                 variable_list[-1]['metaItems'] = meta_items
 
     json_print(variable_list)
-    print(get_report_date(config_dict, wb))
+    print(get_report_date(config_dict, wb, excel_file))
 
 
 def load_json_file(config_file):
@@ -99,7 +100,8 @@ def get_var_column_int(var_col):
     return col_int
 
 
-def get_report_date(config_dict, wb):
+def get_report_date(config_dict, wb, excel_file):
+    report_date = None
 
     for sheet in config_dict['sheets']:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
@@ -107,6 +109,9 @@ def get_report_date(config_dict, wb):
             date_column_int = get_var_column_int(sheet['dateCellColumn'])
             date = excel_sheet.cell_value(sheet['dateCellRow'] - 1, date_column_int)
             report_date = xlrd.xldate_as_datetime(date, wb.datemode)
+
+    if report_date is None:
+        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))
 
 
     # **need to format date
