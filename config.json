@@ -1,6 +1,10 @@
 {
   "machineName": "machine",
   "scheduleName": "schedule",
+  "machineCellRow": 0,
+  "machineCellColumn": "A",
+  "scheduleCellRow": 0,
+  "scheduleCellColumn": "B",
   "sheets": [
     {
       "sheetName": "Sheet 1",

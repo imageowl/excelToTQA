@@ -10,12 +10,6 @@ import excel_to_tqa
 tqa.load_json_credentials('SmariCredentials.json')
 print('Access Token: ', tqa.access_token)
 
-config_dict = excel_to_tqa.load_json_file("configTest.json")
-
-machine_idx = tqa.get_machine_id_from_str(config_dict['machineName'])
-schedule_idx = tqa.get_schedule_id_from_str(config_dict['scheduleName'], machine_idx)
-
-sheet_dict = config_dict['sheets']
-
 excel_file_path = "/Users/annafronhofer/Desktop/testFiles/LinacCTP504Copy.xlsx"
-excel_to_tqa.load_excel_file(excel_file_path, sheet_dict, schedule_idx)
+config_file_path = "/Users/annafronhofer/PycharmProjects/excel_to_TQA/configTest.json"
+excel_to_tqa.load_excel_file(excel_file_path, config_file_path)
