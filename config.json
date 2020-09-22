@@ -5,12 +5,22 @@
     {
       "sheetName": "Sheet 1",
       "sheetNumber": 1,
-      "machineCellRow": 1,
-      "machineCellColumn": "A",
-      "scheduleCellRow": 1,
-      "scheduleCellColumn": "B",
-      "dateCellRow": 1,
-      "dateCellColumn": "C",
+      "machine": {
+        "machineCellRow": 1,
+        "machineCellColumn": "A"
+      },
+      "schedule": {
+        "scheduleCellRow": 1,
+        "scheduleCellColumn": "B"
+      },
+      "date": {
+        "dateCellRow": 1,
+        "dateCellColumn": "C"
+      },
+      "reportComment": {
+        "reportCommentCellRow": 1,
+        "reportCommentCellColumn": "D"
+      },
       "sheetVariables": [
         {
           "name": "Variable A",
@@ -38,7 +48,11 @@
         {
           "name": "Variable C",
           "valueCellRow": 2,
-          "valueCellColumn": "C"
+          "valueCellColumn": "C",
+          "comment": {
+            "varCommentCellRow": 2,
+            "varCommentCellColumn": "D"
+          }
         },
         {
           "name": "Variable D",

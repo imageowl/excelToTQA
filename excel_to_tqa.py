@@ -51,8 +51,15 @@ def load_excel_file(excel_file, config_file):
 
                 variable_list[-1]['metaItems'] = meta_items
 
-    json_print(variable_list)
-    print(get_report_date(config_dict, wb, excel_file))
+    report_date = get_report_date(config_dict, wb, excel_file)
+    report_comment = get_report_comments(config_dict, wb)
+
+
+    print("Schedule id: ", sched_id)
+    print(variable_list)
+    print("Report Date: ", report_date)
+    print("Report Comment: ", report_comment)
+
 
 
 def load_json_file(config_file):
@@ -67,16 +74,16 @@ def get_schedule_id(config_dict, wb):
 
     for sheet in config_dict['sheets']:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
-        if 'machineCellRow' in sheet:  # machine name is in excel file
-            machine_column_int = get_var_column_int(sheet['machineCellColumn'])
-            machine = excel_sheet.cell_value(sheet['machineCellRow'] - 1, machine_column_int)
+        if 'machine' in sheet:  # machine name is in excel file
+            machine_column_int = get_var_column_int(sheet['machine']['machineCellColumn'])
+            machine = excel_sheet.cell_value(sheet['machine']['machineCellRow'] - 1, machine_column_int)
         elif 'machineName' in config_dict:  # machine name is in config file
             machine = config_dict['machineName']
         machine_id = tqa.get_machine_id_from_str(machine)
 
-        if 'scheduleCellRow' in sheet:  # schedule name is in excel file
-            sched_column_int = get_var_column_int(sheet['scheduleCellColumn'])
-            schedule = excel_sheet.cell_value(sheet['scheduleCellRow'] - 1, sched_column_int)
+        if 'schedule' in sheet:  # schedule name is in excel file
+            sched_column_int = get_var_column_int(sheet['schedule']['scheduleCellColumn'])
+            schedule = excel_sheet.cell_value(sheet['schedule']['scheduleCellRow'] - 1, sched_column_int)
         elif 'scheduleName' in config_dict:  # schedule name is in config file
             schedule = config_dict['scheduleName']
         schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
@@ -105,9 +112,9 @@ def get_report_date(config_dict, wb, excel_file):
 
     for sheet in config_dict['sheets']:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
-        if 'dateCellRow' in sheet:  # report date is in excel file
-            date_column_int = get_var_column_int(sheet['dateCellColumn'])
-            date = excel_sheet.cell_value(sheet['dateCellRow'] - 1, date_column_int)
+        if 'date' in sheet:  # report date is in excel file
+            date_column_int = get_var_column_int(sheet['date']['dateCellColumn'])
+            date = excel_sheet.cell_value(sheet['date']['dateCellRow'] - 1, date_column_int)
             report_date = xlrd.xldate_as_datetime(date, wb.datemode)
 
     if report_date is None:
@@ -116,3 +123,16 @@ def get_report_date(config_dict, wb, excel_file):
     report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
 
     return report_date
+
+
+def get_report_comments(config_dict, wb):
+    report_comment = None
+
+    for sheet in config_dict['sheets']:
+        excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+        if 'reportComment' in sheet:  # report comment is in excel file
+            report_comment_column_int = get_var_column_int(sheet['reportComment']['reportCommentCellColumn'])
+            report_comment = excel_sheet.cell_value(sheet['reportComment']['reportCommentCellRow'] - 1,
+                                                    report_comment_column_int)
+
+    return report_comment

@@ -5,8 +5,14 @@
     {
       "sheetName": "Sheet1",
       "sheetNumber": 1,
-      "dateCellRow": 2,
-      "dateCellColumn": "C",
+      "date": {
+        "dateCellRow": 2,
+        "dateCellColumn": "C"
+      },
+      "reportComment": {
+        "reportCommentCellRow": 2,
+        "reportCommentCellColumn": "D"
+      },
       "sheetVariables": [
         {
           "name": "Geometric distortion [mm]",
@@ -39,7 +45,11 @@
         {
           "name": "HU constancy [HU]",
           "valueCellRow": 3,
-          "valueCellColumn": "C"
+          "valueCellColumn": "C",
+          "comment": {
+            "varCommentCellRow": 4,
+            "varCommentCellColumn": "C"
+          }
         }
       ]
     }
