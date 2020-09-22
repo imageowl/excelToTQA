@@ -28,8 +28,7 @@ def load_excel_file(excel_file, config_file):
         for var in sheet['sheetVariables']:
             var_id = tqa.get_variable_id_from_string(var['name'], sched_id)[0]
 
-            var_column_int = get_var_column_int(var['valueCellColumn'])
-            val = excel_sheet.cell_value(var['valueCellRow']-1, var_column_int)
+            val = get_cell_value(var['valueCellRow'], var['valueCellColumn'], excel_sheet)
 
             variable_list.append({'id': var_id, 'value': val})
 
@@ -44,16 +43,15 @@ def load_excel_file(excel_file, config_file):
                         if i['name'] == item['name']:
                             meta_item_id = i['id']
 
-                    meta_column_int = get_var_column_int(item['valueCellColumn'])
-                    meta_val = excel_sheet.cell_value(item['valueCellRow'] - 1, meta_column_int)
+                    meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)
 
                     meta_items.append({'id': meta_item_id, 'value': meta_val})
 
                 variable_list[-1]['metaItems'] = meta_items
 
             if 'comment' in var:
-                var_comment_column_int = get_var_column_int(var['comment']['varCommentCellColumn'])
-                var_comment = excel_sheet.cell_value(var['comment']['varCommentCellRow'] - 1, var_comment_column_int)
+                var_comment = get_cell_value(var['comment']['varCommentCellRow'],
+                                             var['comment']['varCommentCellColumn'], excel_sheet)
                 variable_list[-1]['comment'] = var_comment
 
     report_date = get_report_date(config_dict, wb, excel_file)
@@ -80,15 +78,15 @@ def get_schedule_id(config_dict, wb):
     for sheet in config_dict['sheets']:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
         if 'machine' in sheet:  # machine name is in excel file
-            machine_column_int = get_var_column_int(sheet['machine']['machineCellColumn'])
-            machine = excel_sheet.cell_value(sheet['machine']['machineCellRow'] - 1, machine_column_int)
+            machine = get_cell_value(sheet['machine']['machineCellRow'], sheet['machine']['machineCellColumn'],
+                                     excel_sheet)
         elif 'machineName' in config_dict:  # machine name is in config file
             machine = config_dict['machineName']
         machine_id = tqa.get_machine_id_from_str(machine)
 
         if 'schedule' in sheet:  # schedule name is in excel file
-            sched_column_int = get_var_column_int(sheet['schedule']['scheduleCellColumn'])
-            schedule = excel_sheet.cell_value(sheet['schedule']['scheduleCellRow'] - 1, sched_column_int)
+            schedule = get_cell_value(sheet['schedule']['scheduleCellRow'], sheet['schedule']['scheduleCellColumn'],
+                                      excel_sheet)
         elif 'scheduleName' in config_dict:  # schedule name is in config file
             schedule = config_dict['scheduleName']
         schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
@@ -96,7 +94,7 @@ def get_schedule_id(config_dict, wb):
     return schedule_id
 
 
-def get_var_column_int(var_col):
+def get_cell_value(row_int, var_col, excel_sheet):
     col_int = None
     if isinstance(var_col, str):  # column input as letter
         var_col = var_col.upper()
@@ -109,7 +107,8 @@ def get_var_column_int(var_col):
     elif isinstance(var_col, int):  # column input as integer
         col_int = var_col-1  # excel file starts at 1, xlrd indexing starts at 0
 
-    return col_int
+    value = excel_sheet.cell_value(row_int - 1, col_int)
+    return value
 
 
 def get_report_date(config_dict, wb, excel_file):
@@ -118,8 +117,7 @@ def get_report_date(config_dict, wb, excel_file):
     for sheet in config_dict['sheets']:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
         if 'date' in sheet:  # report date is in excel file
-            date_column_int = get_var_column_int(sheet['date']['dateCellColumn'])
-            date = excel_sheet.cell_value(sheet['date']['dateCellRow'] - 1, date_column_int)
+            date = get_cell_value(sheet['date']['dateCellRow'], sheet['date']['dateCellColumn'], excel_sheet)
             report_date = xlrd.xldate_as_datetime(date, wb.datemode)
 
     if report_date is None:
@@ -136,8 +134,7 @@ def get_report_comments(config_dict, wb):
     for sheet in config_dict['sheets']:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
         if 'reportComment' in sheet:  # report comment is in excel file
-            report_comment_column_int = get_var_column_int(sheet['reportComment']['reportCommentCellColumn'])
-            report_comment = excel_sheet.cell_value(sheet['reportComment']['reportCommentCellRow'] - 1,
-                                                    report_comment_column_int)
+            report_comment = get_cell_value(sheet['reportComment']['reportCommentCellRow'],
+                                            sheet['reportComment']['reportCommentCellColumn'], excel_sheet)
 
     return report_comment
