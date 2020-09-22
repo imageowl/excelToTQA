@@ -4,7 +4,7 @@
   "sheets": [
     {
       "sheetName": "Sheet1",
-      "sheetIndex": 0,
+      "sheetNumber": 1,
       "sheetVariables": [
         {
           "name": "Geometric distortion [mm]",
@@ -27,7 +27,7 @@
     },
     {
       "sheetName": "Sheet2",
-      "sheetIndex": 1,
+      "sheetNumber": 2,
       "sheetVariables": [
         {
           "name": "Spatial resolution [lp/cm]",

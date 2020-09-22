@@ -33,8 +33,8 @@ def load_excel_file(excel_file, config_file):
         for var in sheet['sheetVariables']:
             var_id = tqa.get_variable_id_from_string(var['name'], sched_id)[0]
 
-            column_int = abs(65-ord(var['valueCellColumn'].upper()))  # **Need to figure out how to find this with double letters
-            val = excel_sheet.cell_value(var['valueCellRow']-1, column_int)
+            var_column_int = get_var_column_int(var['valueCellColumn'])
+            val = excel_sheet.cell_value(var['valueCellRow']-1, var_column_int)
 
             variable_list.append({'id': var_id, 'value': val})
 
@@ -49,7 +49,7 @@ def load_excel_file(excel_file, config_file):
                         if i['name'] == item['name']:
                             meta_item_id = i['id']
 
-                    meta_column_int = abs(65 - ord(item['valueCellColumn'].upper()))  # **Need to figure out how to find this with double letters
+                    meta_column_int = get_var_column_int(item['valueCellColumn'])
                     meta_val = excel_sheet.cell_value(item['valueCellRow'] - 1, meta_column_int)
 
                     meta_items.append({'id': meta_item_id, 'value': meta_val})
@@ -67,17 +67,33 @@ def get_schedule_id(config_dict, wb):
     for sheet in sheets_dict:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
         if 'machineCellRow' in sheet:
-            machine_column_int = abs(65 - ord(sheet['machineCellColumn'].upper()))  # **Need to figure out how to find this with double letters
+            machine_column_int = get_var_column_int(sheet['machineCellColumn'])
             machine = excel_sheet.cell_value(sheet['machineCellRow'] - 1, machine_column_int)
             machine_id = tqa.get_machine_id_from_str(machine)
         elif 'machineName' in config_dict:
             machine_id = tqa.get_machine_id_from_str(config_dict['machineName'])
 
         if 'scheduleCellRow' in sheet:
-            sched_column_int = abs(65 - ord(sheet['scheduleCellColumn'].upper()))  # **Need to figure out how to find this with double letters
+            sched_column_int = get_var_column_int(sheet['scheduleCellColumn'])
             schedule = excel_sheet.cell_value(sheet['scheduleCellRow'] - 1, sched_column_int)
             schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
         elif 'scheduleName' in config_dict:
             schedule_id = tqa.get_schedule_id_from_str(config_dict['scheduleName'], machine_id)
 
     return schedule_id
+
+
+def get_var_column_int(var_col):
+    col_int = None
+    if isinstance(var_col, str):
+        var_col = var_col.upper()
+        if len(var_col) == 1:
+            col_int = abs(65-ord(var_col))
+        elif len(var_col) == 2:
+            firstLetter = (abs(65 - ord(var_col[0])) + 1) * 26
+            secondLetter = abs(65 - ord(var_col[1]))
+            col_int = firstLetter + secondLetter
+    elif isinstance(var_col, int):
+        col_int = var_col-1
+
+    return col_int

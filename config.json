@@ -4,7 +4,7 @@
   "sheets": [
     {
       "sheetName": "Sheet 1",
-      "sheetIndex": 0,
+      "sheetNumber": 1,
       "machineCellRow": 0,
       "machineCellColumn": "A",
       "scheduleCellRow": 0,
@@ -31,7 +31,7 @@
     },
     {
       "sheetName": "Sheet 2",
-      "sheetIndex": 1,
+      "sheetNumber": 2,
       "sheetVariables": [
         {
           "name": "Variable C",
