@@ -12,20 +12,13 @@ def json_print(j):
     print(json.dumps(j, indent=4, sort_keys=True))
 
 
-def load_json_file(config_file):
-    with open(config_file) as file:
-        config_dict = json.load(file)
-
-    return config_dict
-
-
 def load_excel_file(excel_file, config_file):
-    config_dict = load_json_file(config_file)
-    wb = xlrd.open_workbook(excel_file)
-    sheets_dict = config_dict['sheets']
-    variable_list = []
+    config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
+    sheets_dict = config_dict['sheets']  # create a dictionary object of the excel sheets
+    wb = xlrd.open_workbook(excel_file)  # load the excel workbook
+    variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
-    sched_id = get_schedule_id(config_dict, wb)
+    sched_id = get_schedule_id(config_dict, wb)  # determine the id of the schedule
 
     for sheet in sheets_dict:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
@@ -59,41 +52,46 @@ def load_excel_file(excel_file, config_file):
     json_print(variable_list)
 
 
-def get_schedule_id(config_dict, wb):
-    machine_id = None
-    schedule_id = None
-    sheets_dict = config_dict['sheets']
+def load_json_file(config_file):
+    with open(config_file) as file:
+        config_dict = json.load(file)
 
-    for sheet in sheets_dict:
+    return config_dict
+
+
+def get_schedule_id(config_dict, wb):
+    schedule_id = None
+
+    for sheet in config_dict['sheets']:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
-        if 'machineCellRow' in sheet:
+        if 'machineCellRow' in sheet:  # machine name is in excel file
             machine_column_int = get_var_column_int(sheet['machineCellColumn'])
             machine = excel_sheet.cell_value(sheet['machineCellRow'] - 1, machine_column_int)
-            machine_id = tqa.get_machine_id_from_str(machine)
-        elif 'machineName' in config_dict:
-            machine_id = tqa.get_machine_id_from_str(config_dict['machineName'])
+        elif 'machineName' in config_dict:  # machine name is in config file
+            machine = config_dict['machineName']
+        machine_id = tqa.get_machine_id_from_str(machine)
 
-        if 'scheduleCellRow' in sheet:
+        if 'scheduleCellRow' in sheet:  # schedule name is in excel file
             sched_column_int = get_var_column_int(sheet['scheduleCellColumn'])
             schedule = excel_sheet.cell_value(sheet['scheduleCellRow'] - 1, sched_column_int)
-            schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
-        elif 'scheduleName' in config_dict:
-            schedule_id = tqa.get_schedule_id_from_str(config_dict['scheduleName'], machine_id)
+        elif 'scheduleName' in config_dict:  # schedule name is in config file
+            schedule = config_dict['scheduleName']
+        schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
 
     return schedule_id
 
 
 def get_var_column_int(var_col):
     col_int = None
-    if isinstance(var_col, str):
+    if isinstance(var_col, str):  # column input as letter
         var_col = var_col.upper()
-        if len(var_col) == 1:
+        if len(var_col) == 1:  # name of column is one letter
             col_int = abs(65-ord(var_col))
-        elif len(var_col) == 2:
-            firstLetter = (abs(65 - ord(var_col[0])) + 1) * 26
-            secondLetter = abs(65 - ord(var_col[1]))
-            col_int = firstLetter + secondLetter
-    elif isinstance(var_col, int):
-        col_int = var_col-1
+        elif len(var_col) == 2:  # name of column is two letters
+            first_letter = (abs(65 - ord(var_col[0])) + 1) * 26
+            second_letter = abs(65 - ord(var_col[1]))
+            col_int = first_letter + second_letter
+    elif isinstance(var_col, int):  # column input as integer
+        col_int = var_col-1  # excel file starts at 1, xlrd indexing starts at 0
 
     return col_int
