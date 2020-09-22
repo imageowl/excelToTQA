@@ -51,6 +51,11 @@ def load_excel_file(excel_file, config_file):
 
                 variable_list[-1]['metaItems'] = meta_items
 
+            if 'comment' in var:
+                var_comment_column_int = get_var_column_int(var['comment']['varCommentCellColumn'])
+                var_comment = excel_sheet.cell_value(var['comment']['varCommentCellRow'] - 1, var_comment_column_int)
+                variable_list[-1]['comment'] = var_comment
+
     report_date = get_report_date(config_dict, wb, excel_file)
     report_comment = get_report_comments(config_dict, wb)
 
