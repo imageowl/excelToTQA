@@ -111,9 +111,8 @@ def get_report_date(config_dict, wb, excel_file):
             report_date = xlrd.xldate_as_datetime(date, wb.datemode)
 
     if report_date is None:
-        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))
+        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date last modified
 
-
-    # **need to format date
+    report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
 
     return report_date
