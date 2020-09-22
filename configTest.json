@@ -1,6 +1,8 @@
 {
   "machineName": "Linac",
   "scheduleName": "CTP504 Copy",
+  "finalize": 1,
+  "mode": "save_append",
   "sheets": [
     {
       "sheetName": "Sheet1",

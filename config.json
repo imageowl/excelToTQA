@@ -1,6 +1,8 @@
 {
   "machineName": "machine",
   "scheduleName": "schedule",
+  "finalize": 0,
+  "mode": "save_append",
   "sheets": [
     {
       "sheetName": "Sheet 1",

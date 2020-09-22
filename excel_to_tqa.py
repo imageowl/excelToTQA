@@ -1,8 +1,8 @@
 import datetime
 import sys
+import os.path
 import json
 import xlrd
-import os.path, time
 
 TQA_PATH = r'/Users/annafronhofer/PycharmProjects/pyTQA'
 sys.path.insert(0, TQA_PATH)
@@ -56,13 +56,19 @@ def load_excel_file(excel_file, config_file):
 
     report_date = get_report_date(config_dict, wb, excel_file)
     report_comment = get_report_comments(config_dict, wb)
-
+    finalize = config_dict['finalize']
+    mode = config_dict['mode']
 
     print("Schedule id: ", sched_id)
     print(variable_list)
     print("Report Date: ", report_date)
     print("Report Comment: ", report_comment)
+    print("Finalize: ", finalize)
+    print("Mode: ", mode)
 
+    response = tqa.upload_test_results(schedule_id=sched_id, variable_data=variable_list, comment=report_comment,
+                                       finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
+    print("Response: ", response)
 
 
 def load_json_file(config_file):
@@ -70,6 +76,23 @@ def load_json_file(config_file):
         config_dict = json.load(file)
 
     return config_dict
+
+
+def get_cell_value(row_int, var_col, excel_sheet):
+    col_int = None
+    if isinstance(var_col, str):  # column input as letter
+        var_col = var_col.upper()
+        if len(var_col) == 1:  # name of column is one letter
+            col_int = abs(65-ord(var_col))
+        elif len(var_col) == 2:  # name of column is two letters
+            first_letter = (abs(65 - ord(var_col[0])) + 1) * 26
+            second_letter = abs(65 - ord(var_col[1]))
+            col_int = first_letter + second_letter
+    elif isinstance(var_col, int):  # column input as integer
+        col_int = var_col-1  # excel file starts at 1, xlrd indexing starts at 0
+
+    value = excel_sheet.cell_value(row_int - 1, col_int)
+    return value
 
 
 def get_schedule_id(config_dict, wb):
@@ -92,23 +115,6 @@ def get_schedule_id(config_dict, wb):
         schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
 
     return schedule_id
-
-
-def get_cell_value(row_int, var_col, excel_sheet):
-    col_int = None
-    if isinstance(var_col, str):  # column input as letter
-        var_col = var_col.upper()
-        if len(var_col) == 1:  # name of column is one letter
-            col_int = abs(65-ord(var_col))
-        elif len(var_col) == 2:  # name of column is two letters
-            first_letter = (abs(65 - ord(var_col[0])) + 1) * 26
-            second_letter = abs(65 - ord(var_col[1]))
-            col_int = first_letter + second_letter
-    elif isinstance(var_col, int):  # column input as integer
-        col_int = var_col-1  # excel file starts at 1, xlrd indexing starts at 0
-
-    value = excel_sheet.cell_value(row_int - 1, col_int)
-    return value
 
 
 def get_report_date(config_dict, wb, excel_file):
