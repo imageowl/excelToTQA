@@ -1,14 +1,14 @@
 {
   "machineName": "machine",
   "scheduleName": "schedule",
-  "machineCellRow": 0,
-  "machineCellColumn": "A",
-  "scheduleCellRow": 0,
-  "scheduleCellColumn": "B",
   "sheets": [
     {
       "sheetName": "Sheet 1",
       "sheetIndex": 0,
+      "machineCellRow": 0,
+      "machineCellColumn": "A",
+      "scheduleCellRow": 0,
+      "scheduleCellColumn": "B",
       "sheetVariables": [
         {
           "name": "Variable A",
