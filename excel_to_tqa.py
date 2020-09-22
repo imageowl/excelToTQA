@@ -14,13 +14,17 @@ def json_print(j):
     print(json.dumps(j, indent=4, sort_keys=True))
 
 
-def load_excel_file(excel_file, config_file):
+def upload_excel_file(excel_file, config_file):
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
     sheets_dict = config_dict['sheets']  # create a dictionary object of the excel sheets
     wb = xlrd.open_workbook(excel_file)  # load the excel workbook
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
     sched_id = get_schedule_id(config_dict, wb)  # determine the id of the schedule
+    if sched_id is None:
+        error_msg = "The schedule name and machine name must be in the config file, or their locations in the excel " \
+                    "file must be in the config file."
+        raise ValueError("Error: The schedule id could not be found.", error_msg)
 
     for sheet in sheets_dict:
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
@@ -79,7 +83,6 @@ def load_json_file(config_file):
 
 
 def get_cell_value(row_int, var_col, excel_sheet):
-    col_int = None
     if isinstance(var_col, str):  # column input as letter
         var_col = var_col.upper()
         if len(var_col) == 1:  # name of column is one letter
