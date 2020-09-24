@@ -11,12 +11,12 @@ import tqa
 
 
 def json_print(j):
-    print(json.dumps(j, indent=4, sort_keys=True))
+    print(json.dumps(j, indent=4))
 
 
 def upload_excel_file(excel_file, config_file):
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
-    sheets_dict = config_dict['sheets']  # create a dictionary object of the excel sheets
+    config_sheets_dict = config_dict['sheets']  # create a dictionary object of the excel sheets
     wb = xlrd.open_workbook(excel_file)  # load the excel workbook
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
@@ -26,15 +26,15 @@ def upload_excel_file(excel_file, config_file):
                     "file must be in the config file."
         raise ValueError("Error: The schedule id could not be found.", error_msg)
 
-    for sheet in sheets_dict:
-        excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+    for config_sheet in config_sheets_dict:
+        excel_sheet = wb.sheet_by_name(config_sheet['sheetName'])
 
-        for var in sheet['sheetVariables']:
+        for var in config_sheet['sheetVariables']:
             var_id = tqa.get_variable_id_from_string(var['name'], sched_id)[0]
 
             val = get_cell_value(var['valueCellRow'], var['valueCellColumn'], excel_sheet)
 
-            variable_list.append({'id': var_id, 'value': [val,val-1]})
+            variable_list.append({'id': var_id, 'value': val})
 
             if 'metaItems' in var:
                 meta_items = []
@@ -60,8 +60,16 @@ def upload_excel_file(excel_file, config_file):
 
     report_date = get_report_date(config_dict, wb, excel_file)
     report_comment = get_report_comments(config_dict, wb)
-    finalize = config_dict['finalize']
-    mode = config_dict['mode']
+
+    if 'finalize' in config_dict:
+        finalize = config_dict['finalize']
+    else:
+        finalize = 0
+
+    if 'mode' in config_dict:
+        mode = config_dict['mode']
+    else:
+        mode = "save_append"
 
     print("Schedule id: ", sched_id)
     print(variable_list)

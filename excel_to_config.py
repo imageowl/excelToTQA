@@ -130,5 +130,5 @@ def write_to_json_file(config_dict):
 
 
 def json_print(j):
-    print(json.dumps(j, indent=4, sort_keys=True))
+    print(json.dumps(j, indent=4))
 

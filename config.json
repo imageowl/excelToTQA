@@ -6,7 +6,6 @@
   "sheets": [
     {
       "sheetName": "Sheet 1",
-      "sheetNumber": 1,
       "machine": {
         "machineCellRow": 1,
         "machineCellColumn": "A"
@@ -45,7 +44,6 @@
     },
     {
       "sheetName": "Sheet 2",
-      "sheetNumber": 2,
       "sheetVariables": [
         {
           "name": "Variable C",
