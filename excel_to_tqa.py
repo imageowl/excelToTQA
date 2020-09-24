@@ -34,7 +34,7 @@ def upload_excel_file(excel_file, config_file):
 
             val = get_cell_value(var['valueCellRow'], var['valueCellColumn'], excel_sheet)
 
-            variable_list.append({'id': var_id, 'value': val})
+            variable_list.append({'id': var_id, 'value': [val,val-1]})
 
             if 'metaItems' in var:
                 meta_items = []
