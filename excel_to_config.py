@@ -80,20 +80,31 @@ def excel_to_config_file(excel_file):
             is_empty = False
             row_idx = row+2
             while is_empty is False:
-                variable_name = sheet.cell_value(row_idx, col)
+                variable_name = sheet.cell_value(row_idx, col).strip()
                 if len(variable_name) != 0:
                     variable_row = int(sheet.cell_value(row_idx, col+1))
                     variable_col = sheet.cell_value(row_idx, col+2)
                     config_dict["sheets"][-1]["sheetVariables"].append({"name": variable_name.strip(),
                                                                         "valueCellRow": variable_row,
                                                                         "valueCellColumn": variable_col})
+                    if sheet.cell_value(row_idx, col+3).lower() == "yes":
+                        # meta items
+                        print('meta')
+
+                    if sheet.cell_value(row_idx, col+4).lower() == "yes":
+                        # variable comment
+                        comments_table_row, comments_table_col = find_value_in_sheet(sheet, 'Comments Table')
+                        for rowNum in range(comments_table_row, sheet.nrows):
+                            found_var = sheet.cell_value(rowNum, comments_table_col).strip()
+                            if found_var == variable_name:
+                                comment_row = int(sheet.cell_value(rowNum, comments_table_col+1))
+                                comment_col = sheet.cell_value(rowNum, comments_table_col+2)
+                        config_dict["sheets"][-1]["sheetVariables"][-1]["comment"] = {"varCommentCellRow": comment_row,
+                                                                                      "varCommentCellColumn": comment_col}
                 else:
                     is_empty = True
 
                 row_idx += 1
-
-
-
 
     json_print(config_dict)
 
