@@ -45,24 +45,29 @@ def excel_to_config_file(excel_file):
                 machine_col = sheet.cell_value(row, col+2)
                 config_dict["sheets"][-1]["machine"] = {"machineCellRow": machine_row, "machineCellColumn": machine_col}
 
-        if find_value_in_sheet(sheet, 'Schedule Name') is not None:
-            row, col = find_value_in_sheet(sheet, 'Schedule Name')
+        schedule_name_cell = find_value_in_sheet(sheet, 'Schedule Name')
+        if schedule_name_cell is not None:
+            row, col = schedule_name_cell
             schedule_name = sheet.cell_value(row+1, col)
             config_dict["scheduleName"] = schedule_name
-        if find_value_in_sheet(sheet, 'schedule') is not None:
-            row, col = find_value_in_sheet(sheet, 'schedule')
-            schedule_row = int(sheet.cell_value(row, col+1))
-            schedule_col = sheet.cell_value(row, col+2)
-            config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row, "scheduleCellColumn": schedule_col}
+        else:
+            schedule_cell = find_value_in_sheet(sheet, 'schedule')
+            if schedule_cell is not None:
+                row, col = schedule_cell
+                schedule_row = int(sheet.cell_value(row, col+1))
+                schedule_col = sheet.cell_value(row, col+2)
+                config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row, "scheduleCellColumn": schedule_col}
 
-        if find_value_in_sheet(sheet, 'date') is not None:
-            row, col = find_value_in_sheet(sheet, 'date')
+        date_cell = find_value_in_sheet(sheet, 'date')
+        if date_cell is not None:
+            row, col = date_cell
             date_row = int(sheet.cell_value(row, col+1))
             date_col = sheet.cell_value(row, col+2)
             config_dict["sheets"][-1]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
 
-        if find_value_in_sheet(sheet, 'report comment') is not None:
-            row, col = find_value_in_sheet(sheet, 'report comment')
+        report_comment_cell = find_value_in_sheet(sheet, 'report comment')
+        if report_comment_cell is not None:
+            row, col = report_comment_cell
             report_comment_row = int(sheet.cell_value(row, col+1))
             report_comment_col = sheet.cell_value(row, col+2)
             config_dict["sheets"][-1]["reportComment"] = {"reportCommentCellRow": report_comment_row,
