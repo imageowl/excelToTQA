@@ -17,4 +17,5 @@ print('Access Token: ', tqa.access_token)
 
 excel_file_path = "/Users/annafronhofer/Desktop/testFiles/LinacCTP504Copy.xlsx"
 config_file_path = "/Users/annafronhofer/PycharmProjects/excel_to_TQA/configTest1.json"
-excel_to_tqa.upload_excel_file(excel_file_path, config_file_path)
+response = excel_to_tqa.upload_excel_file(excel_file_path, config_file_path)
+print(response)

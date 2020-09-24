@@ -16,8 +16,8 @@ def json_print(j):
 
 def upload_excel_file(excel_file, config_file):
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
-    config_sheets_dict = config_dict['sheets']  # create a dictionary object of the excel sheets
-    wb = xlrd.open_workbook(excel_file)  # load the excel workbook
+    config_sheets_dict = config_dict['sheets']  # dictionary object of the excel sheets
+    wb = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
     sched_id = get_schedule_id(config_dict, wb)  # determine the id of the schedule
@@ -72,7 +72,7 @@ def upload_excel_file(excel_file, config_file):
         mode = "save_append"
 
     print("Schedule id: ", sched_id)
-    print(variable_list)
+    print("Variables: ", variable_list)
     print("Report Date: ", report_date)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
@@ -80,7 +80,7 @@ def upload_excel_file(excel_file, config_file):
 
     response = tqa.upload_test_results(schedule_id=sched_id, variable_data=variable_list, comment=report_comment,
                                        finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
-    print("Response: ", response)
+    return response
 
 
 def load_json_file(config_file):
@@ -91,6 +91,7 @@ def load_json_file(config_file):
 
 
 def get_cell_value(row_int, var_col, excel_sheet):
+    # convert column from letter to integer and find the value in the cell
     if isinstance(var_col, str):  # column input as letter
         var_col = var_col.upper()
         if len(var_col) == 1:  # name of column is one letter
@@ -107,6 +108,7 @@ def get_cell_value(row_int, var_col, excel_sheet):
 
 
 def get_schedule_id(config_dict, wb):
+    # get the schedule id using the schedule name and machine id
     schedule_id = None
 
     for sheet in config_dict['sheets']:
@@ -129,6 +131,10 @@ def get_schedule_id(config_dict, wb):
 
 
 def get_report_date(config_dict, wb, excel_file):
+    # to get the report date:
+    #   use the date present in the excel file
+    #   if there is no date, use the date the excel file was last modified
+
     report_date = None
 
     for sheet in config_dict['sheets']:
@@ -146,6 +152,7 @@ def get_report_date(config_dict, wb, excel_file):
 
 
 def get_report_comments(config_dict, wb):
+    # get the report comments from the excel file, if there are any
     report_comment = None
 
     for sheet in config_dict['sheets']:
