@@ -89,7 +89,16 @@ def excel_to_config_file(excel_file):
                                                                         "valueCellColumn": variable_col})
                     if sheet.cell_value(row_idx, col+3).lower() == "yes":
                         # meta items
-                        print('meta')
+                        config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"] = []
+                        meta_items_table_row, meta_items_table_col = find_value_in_sheet(sheet, 'Meta Items Table')
+                        for rowNum in range(meta_items_table_row, sheet.nrows):
+                            found_var = sheet.cell_value(rowNum, meta_items_table_col).strip()
+                            if found_var == variable_name:
+                                meta_item_var_name = sheet.cell_value(rowNum, meta_items_table_col + 1)
+                                meta_items_row = int(sheet.cell_value(rowNum, meta_items_table_col + 2))
+                                meta_items_col = sheet.cell_value(rowNum, meta_items_table_col + 3)
+                        config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"].append({"name": meta_item_var_name,
+                                                        "valueCellRow": meta_items_row, "valueColumn": meta_items_col})
 
                     if sheet.cell_value(row_idx, col+4).lower() == "yes":
                         # variable comment
