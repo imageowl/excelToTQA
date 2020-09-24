@@ -15,6 +15,8 @@ def json_print(j):
 
 
 def upload_excel_file(excel_file, config_file):
+    # get the data from the excel file and upload it to Smari
+
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
     config_sheets_dict = config_dict['sheets']  # dictionary object of the excel sheets
     wb = xlrd.open_workbook(excel_file)
