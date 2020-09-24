@@ -97,7 +97,7 @@ def excel_to_config_file(excel_file):
                                 meta_item_var_name = sheet.cell_value(rowNum, meta_items_table_col + 1)
                                 meta_items_row = int(sheet.cell_value(rowNum, meta_items_table_col + 2))
                                 meta_items_col = sheet.cell_value(rowNum, meta_items_table_col + 3)
-                        config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"].append({"name": meta_item_var_name,
+                                config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"].append({"name": meta_item_var_name,
                                                         "valueCellRow": meta_items_row, "valueColumn": meta_items_col})
 
                     if sheet.cell_value(row_idx, col+4).lower() == "yes":
@@ -115,7 +115,8 @@ def excel_to_config_file(excel_file):
 
                 row_idx += 1
 
-    json_print(config_dict)
+    # json_print(config_dict)
+    write_to_json_file(config_dict)
 
 
 def find_value_in_sheet(sheet, val):
@@ -123,3 +124,10 @@ def find_value_in_sheet(sheet, val):
         for row_num in range(sheet.nrows):
             if sheet.cell_value(row_num, col_num) == val:
                 return row_num, col_num
+
+
+def write_to_json_file(config_dict):
+    json_object = json.dumps(config_dict, indent=4)
+
+    with open("config_file.json", "w") as outfile:
+        outfile.write(json_object)
