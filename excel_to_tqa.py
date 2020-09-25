@@ -136,12 +136,13 @@ def get_schedule_id(config_dict, wb):
 
 def get_report_date(config_dict, wb, excel_file):
     # to get the report date:
-    #   use the date present in the excel file
-    #   if there is no date, use the date the excel file was last modified
+    #   use the date entered in the config file
+    #   or use the date present in the excel file
+    #   or if there is no date in the config or excel file, use the date the excel file was last modified
 
     report_date = None
 
-    if "date" in config_dict:
+    if "date" in config_dict:  # report date is entered in config file
         date = config_dict["date"]
         report_date = parser.parse(date)
 
@@ -164,10 +165,14 @@ def get_report_comments(config_dict, wb):
     # get the report comments from the excel file, if there are any
     report_comment = None
 
-    for sheet in config_dict['sheets']:
-        excel_sheet = wb.sheet_by_name(sheet['sheetName'])
-        if 'reportComment' in sheet:  # report comment is in excel file
-            report_comment = get_cell_value(sheet['reportComment']['reportCommentCellRow'],
-                                            sheet['reportComment']['reportCommentCellColumn'], excel_sheet)
+    if "reportComment" in config_dict:  # report level comment is entered in config file
+        report_comment = config_dict["reportComment"]
+
+    if report_comment is None:
+        for sheet in config_dict['sheets']:
+            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+            if 'reportComment' in sheet:  # report comment is in excel file
+                report_comment = get_cell_value(sheet['reportComment']['reportCommentCellRow'],
+                                                sheet['reportComment']['reportCommentCellColumn'], excel_sheet)
 
     return report_comment
