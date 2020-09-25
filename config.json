@@ -71,7 +71,18 @@
         {
           "name": "Variable D",
           "valueCellRow": 3,
-          "valueCellColumn": "C"
+          "valueCellColumn": "C",
+          "metaItems": [
+            {
+              "name": "Variable D1",
+              "range": {
+                "valueStartRow": 3,
+                "valueStartColumn": "D",
+                "valueEndRow": 3,
+                "valueEndColumn": "F"
+              }
+            }
+          ]
         }
       ]
     }

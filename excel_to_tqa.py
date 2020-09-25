@@ -35,15 +35,7 @@ def upload_excel_file(excel_file, config_file):
             if "range" not in var:
                 val = get_cell_value(var['valueCellRow'], var['valueCellColumn'], excel_sheet)[0]
             else:
-                val = []
-                first_val, first_row, first_col = get_cell_value(var["range"]["valueStartRow"],
-                                                                 var["range"]["valueStartColumn"], excel_sheet)
-                last_val, last_row, last_col = get_cell_value(var["range"]["valueEndRow"],
-                                                              var["range"]["valueEndColumn"], excel_sheet)
-                for rowNum in range(first_row, last_row+1):
-                    for colNum in range(first_col, last_col+1):
-                        v = get_cell_value(rowNum, colNum+1, excel_sheet)[0]
-                        val.append(v)
+                val = get_range_cell_values(var, excel_sheet)
 
             variable_list.append({'id': var_id, 'value': val})
 
@@ -58,7 +50,10 @@ def upload_excel_file(excel_file, config_file):
                         if i['name'] == item['name']:
                             meta_item_id = i['id']
 
-                    meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)[0]
+                    if "range" not in item:
+                        meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)[0]
+                    else:
+                        meta_val = get_range_cell_values(item, excel_sheet)
 
                     meta_items.append({'id': meta_item_id, 'value': meta_val})
 
@@ -109,6 +104,20 @@ def get_cell_value(row_int, var_col, excel_sheet):
 
     value = excel_sheet.cell_value(row_int - 1, col_int)
     return value, row_int, col_int
+
+
+def get_range_cell_values(var, excel_sheet):
+    vals = []
+    first_val, first_row, first_col = get_cell_value(var["range"]["valueStartRow"],
+                                                     var["range"]["valueStartColumn"], excel_sheet)
+    last_val, last_row, last_col = get_cell_value(var["range"]["valueEndRow"],
+                                                  var["range"]["valueEndColumn"], excel_sheet)
+    for rowNum in range(first_row, last_row + 1):
+        for colNum in range(first_col, last_col + 1):
+            v = get_cell_value(rowNum, colNum + 1, excel_sheet)[0]
+            vals.append(v)
+
+    return vals
 
 
 def get_schedule_id(config_dict, wb):
