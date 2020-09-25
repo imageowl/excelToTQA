@@ -3,16 +3,13 @@ from dateutil import parser
 import sys
 import os.path
 import json
+from string import ascii_uppercase
 import xlrd
 
 TQA_PATH = r'/Users/annafronhofer/PycharmProjects/pyTQA'
 sys.path.insert(0, TQA_PATH)
 
 import tqa
-
-
-def json_print(j):
-    print(json.dumps(j, indent=4))
 
 
 def upload_excel_file(excel_file, config_file):
@@ -35,7 +32,18 @@ def upload_excel_file(excel_file, config_file):
         for var in config_sheet['sheetVariables']:
             var_id = tqa.get_variable_id_from_string(var['name'], sched_id)[0]
 
-            val = get_cell_value(var['valueCellRow'], var['valueCellColumn'], excel_sheet)
+            if "range" not in var:
+                val = get_cell_value(var['valueCellRow'], var['valueCellColumn'], excel_sheet)[0]
+            else:
+                val = []
+                first_val, first_row, first_col = get_cell_value(var["range"]["valueStartRow"],
+                                                                 var["range"]["valueStartColumn"], excel_sheet)
+                last_val, last_row, last_col = get_cell_value(var["range"]["valueEndRow"],
+                                                              var["range"]["valueEndColumn"], excel_sheet)
+                for rowNum in range(first_row, last_row+1):
+                    for colNum in range(first_col, last_col+1):
+                        v = get_cell_value(rowNum, colNum+1, excel_sheet)[0]
+                        val.append(v)
 
             variable_list.append({'id': var_id, 'value': val})
 
@@ -50,7 +58,7 @@ def upload_excel_file(excel_file, config_file):
                         if i['name'] == item['name']:
                             meta_item_id = i['id']
 
-                    meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)
+                    meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)[0]
 
                     meta_items.append({'id': meta_item_id, 'value': meta_val})
 
@@ -58,7 +66,7 @@ def upload_excel_file(excel_file, config_file):
 
             if 'comment' in var:
                 var_comment = get_cell_value(var['comment']['varCommentCellRow'],
-                                             var['comment']['varCommentCellColumn'], excel_sheet)
+                                             var['comment']['varCommentCellColumn'], excel_sheet)[0]
                 variable_list[-1]['comment'] = var_comment
 
     report_date = get_report_date(config_dict, wb, excel_file)
@@ -73,8 +81,9 @@ def upload_excel_file(excel_file, config_file):
     print("Finalize: ", finalize)
     print("Mode: ", mode)
 
-    response = tqa.upload_test_results(schedule_id=sched_id, variable_data=variable_list, comment=report_comment,
-                                       finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
+    response = 0
+    # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=variable_list, comment=report_comment,
+    #                                    finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
     return response
 
 
@@ -99,7 +108,7 @@ def get_cell_value(row_int, var_col, excel_sheet):
         col_int = var_col-1  # excel file starts at 1, xlrd indexing starts at 0
 
     value = excel_sheet.cell_value(row_int - 1, col_int)
-    return value
+    return value, row_int, col_int
 
 
 def get_schedule_id(config_dict, wb):
@@ -110,14 +119,14 @@ def get_schedule_id(config_dict, wb):
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
         if 'machine' in sheet:  # machine name is in excel file
             machine = get_cell_value(sheet['machine']['machineCellRow'], sheet['machine']['machineCellColumn'],
-                                     excel_sheet)
+                                     excel_sheet)[0]
         elif 'machineName' in config_dict:  # machine name is in config file
             machine = config_dict['machineName']
         machine_id = tqa.get_machine_id_from_str(machine)
 
         if 'schedule' in sheet:  # schedule name is in excel file
             schedule = get_cell_value(sheet['schedule']['scheduleCellRow'], sheet['schedule']['scheduleCellColumn'],
-                                      excel_sheet)
+                                      excel_sheet)[0]
         elif 'scheduleName' in config_dict:  # schedule name is in config file
             schedule = config_dict['scheduleName']
         schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
@@ -141,7 +150,7 @@ def get_report_date(config_dict, wb, excel_file):
         for sheet in config_dict['sheets']:
             excel_sheet = wb.sheet_by_name(sheet['sheetName'])
             if 'date' in sheet:  # report date is in excel file
-                date = get_cell_value(sheet['date']['dateCellRow'], sheet['date']['dateCellColumn'], excel_sheet)
+                date = get_cell_value(sheet['date']['dateCellRow'], sheet['date']['dateCellColumn'], excel_sheet)[0]
                 report_date = xlrd.xldate_as_datetime(date, wb.datemode)
 
     if report_date is None:
@@ -164,7 +173,7 @@ def get_report_comments(config_dict, wb):
             excel_sheet = wb.sheet_by_name(sheet['sheetName'])
             if 'reportComment' in sheet:  # report comment is in excel file
                 report_comment = get_cell_value(sheet['reportComment']['reportCommentCellRow'],
-                                                sheet['reportComment']['reportCommentCellColumn'], excel_sheet)
+                                                sheet['reportComment']['reportCommentCellColumn'], excel_sheet)[0]
 
     return report_comment
 
@@ -181,7 +190,7 @@ def get_finalize_value(config_dict, wb):
             excel_sheet = wb.sheet_by_name(sheet['sheetName'])
             if 'finalize' in sheet:  # finalize value is in excel file
                 finalize = int(get_cell_value(sheet['finalize']['finalizeCellRow'],
-                                              sheet['finalize']['finalizeCellColumn'], excel_sheet))
+                                              sheet['finalize']['finalizeCellColumn'], excel_sheet)[0])
 
     return finalize
 
@@ -197,6 +206,6 @@ def get_mode(config_dict, wb):
         for sheet in config_dict['sheets']:
             excel_sheet = wb.sheet_by_name(sheet['sheetName'])
             if 'mode' in sheet:  # mode is in excel file
-                mode = get_cell_value(sheet['mode']['modeCellRow'], sheet['mode']['modeCellColumn'], excel_sheet)
+                mode = get_cell_value(sheet['mode']['modeCellRow'], sheet['mode']['modeCellColumn'], excel_sheet)[0]
 
     return mode

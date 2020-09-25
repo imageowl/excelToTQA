@@ -35,8 +35,12 @@
       "sheetVariables": [
         {
           "name": "Variable A",
-          "valueCellRow": 2,
-          "valueCellColumn": "B"
+          "range": {
+            "valueStartRow": 2,
+            "valueStartColumn": "B",
+            "valueEndRow": 2,
+            "valueEndColumn": "C"
+          }
         },
         {
           "name": "Variable B",
