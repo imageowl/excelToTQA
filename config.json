@@ -8,6 +8,14 @@
   "sheets": [
     {
       "sheetName": "Sheet 1",
+      "finalize": {
+        "finalizeCellRow": 1,
+        "finalizeCellColumn": "E"
+      },
+      "mode": {
+        "modeCellRow": 1,
+        "modeCellColumn": "F"
+      },
       "machine": {
         "machineCellRow": 1,
         "machineCellColumn": "A"

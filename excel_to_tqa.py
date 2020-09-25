@@ -63,11 +63,7 @@ def upload_excel_file(excel_file, config_file):
 
     report_date = get_report_date(config_dict, wb, excel_file)
     report_comment = get_report_comments(config_dict, wb)
-
-    if 'finalize' in config_dict:
-        finalize = config_dict['finalize']
-    else:
-        finalize = 0
+    finalize = get_finalize_value(config_dict, wb)
 
     if 'mode' in config_dict:
         mode = config_dict['mode']
@@ -83,7 +79,6 @@ def upload_excel_file(excel_file, config_file):
 
     response = tqa.upload_test_results(schedule_id=sched_id, variable_data=variable_list, comment=report_comment,
                                        finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
-    # response = 0
     return response
 
 
@@ -162,7 +157,7 @@ def get_report_date(config_dict, wb, excel_file):
 
 
 def get_report_comments(config_dict, wb):
-    # get the report comments from the excel file, if there are any
+    # get the report comments from the excel file or config file, if there are any
     report_comment = None
 
     if "reportComment" in config_dict:  # report level comment is entered in config file
@@ -176,3 +171,20 @@ def get_report_comments(config_dict, wb):
                                                 sheet['reportComment']['reportCommentCellColumn'], excel_sheet)
 
     return report_comment
+
+
+def get_finalize_value(config_dict, wb):
+    # get the finalize value from the excel file or config file, if it is present
+    finalize = None
+
+    if "finalize" in config_dict:  # finalize value is entered in config file
+        finalize = config_dict["finalize"]
+
+    if finalize is None:
+        for sheet in config_dict['sheets']:
+            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+            if 'finalize' in sheet:  # finalize value is in excel file
+                finalize = int(get_cell_value(sheet['finalize']['finalizeCellRow'],
+                                              sheet['finalize']['finalizeCellColumn'], excel_sheet))
+
+    return finalize
