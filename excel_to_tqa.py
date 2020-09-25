@@ -64,20 +64,24 @@ def upload_excel_file(excel_file, config_file):
                                              var['comment']['varCommentCellColumn'], excel_sheet)[0]
                 variable_list[-1]['comment'] = var_comment
 
+    print("Intermediate: ", variable_list, '\n')
+    final_variable_list = check_for_variable_duplicates(variable_list)
     report_date = get_report_date(config_dict, wb, excel_file)
     report_comment = get_report_comments(config_dict, wb)
     finalize = get_finalize_value(config_dict, wb)
     mode = get_mode(config_dict, wb)
 
+
+    print("")
     print("Schedule id: ", sched_id)
-    print("Variables: ", variable_list)
+    print("Variables: ", final_variable_list)
     print("Report Date: ", report_date)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
     print("Mode: ", mode)
 
     response = 0
-    # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=variable_list, comment=report_comment,
+    # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
     #                                    finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
     return response
 
@@ -141,6 +145,42 @@ def get_schedule_id(config_dict, wb):
         schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
 
     return schedule_id
+
+
+def check_for_variable_duplicates(variables_list):
+    checked_variables_list = []
+    temp_dict = {}
+    for _dict in variables_list:
+        if _dict["id"] in temp_dict:
+            for key, val in _dict.items():
+                if key == "value":
+                    if not isinstance(temp_dict[_dict["id"]]["value"], list):
+                        temp_dict[_dict["id"]]["value"] = [temp_dict[_dict["id"]]["value"], _dict["value"]]
+                    else:
+                        temp_dict[_dict["id"]]["value"].append(_dict["value"])
+                elif key == "comment":
+                    temp_dict[_dict["id"]]["comment"] += ("; " + _dict["comment"])
+                elif key == "metaItems":
+                    for item in _dict["metaItems"]:
+                        p = False
+                        for i in temp_dict[_dict["id"]]["metaItems"]:
+                            if item["id"] == i["id"]:
+                                if not isinstance(i["value"], list):
+                                    i["value"] = [i["value"], item["value"]]
+                                else:
+                                    i["value"].append(item["value"])
+                                p = True
+                                break
+                        if not p:
+                            temp_dict[_dict["id"]]["metaItems"].append(item)
+        else:
+            temp_dict[_dict["id"]] = _dict
+
+    for val in temp_dict.values():
+        checked_variables_list.append(val)
+
+    return checked_variables_list
+
 
 
 def get_report_date(config_dict, wb, excel_file):

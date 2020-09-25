@@ -110,8 +110,8 @@ def excel_to_config_file(excel_file):
 
                 row_idx += 1  # check next row for variable
 
-    # json_print(config_dict)
-    write_to_json_file(config_dict)
+    json_print(config_dict)
+    # write_to_json_file(config_dict)
 
 
 def find_value_in_sheet(sheet, val):
