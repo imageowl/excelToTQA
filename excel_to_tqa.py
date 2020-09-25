@@ -1,4 +1,5 @@
 import datetime
+from dateutil import parser
 import sys
 import os.path
 import json
@@ -82,6 +83,7 @@ def upload_excel_file(excel_file, config_file):
 
     response = tqa.upload_test_results(schedule_id=sched_id, variable_data=variable_list, comment=report_comment,
                                        finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
+    # response = 0
     return response
 
 
@@ -139,11 +141,16 @@ def get_report_date(config_dict, wb, excel_file):
 
     report_date = None
 
-    for sheet in config_dict['sheets']:
-        excel_sheet = wb.sheet_by_name(sheet['sheetName'])
-        if 'date' in sheet:  # report date is in excel file
-            date = get_cell_value(sheet['date']['dateCellRow'], sheet['date']['dateCellColumn'], excel_sheet)
-            report_date = xlrd.xldate_as_datetime(date, wb.datemode)
+    if "date" in config_dict:
+        date = config_dict["date"]
+        report_date = parser.parse(date)
+
+    if report_date is None:
+        for sheet in config_dict['sheets']:
+            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+            if 'date' in sheet:  # report date is in excel file
+                date = get_cell_value(sheet['date']['dateCellRow'], sheet['date']['dateCellColumn'], excel_sheet)
+                report_date = xlrd.xldate_as_datetime(date, wb.datemode)
 
     if report_date is None:
         report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date last modified
