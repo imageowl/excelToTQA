@@ -148,35 +148,40 @@ def get_schedule_id(config_dict, wb):
 
 
 def check_for_variable_duplicates(variables_list):
-    checked_variables_list = []
-    temp_dict = {}
-    for _dict in variables_list:
-        if _dict["id"] in temp_dict:
-            for key, val in _dict.items():
-                if key == "value":
-                    if not isinstance(temp_dict[_dict["id"]]["value"], list):
-                        temp_dict[_dict["id"]]["value"] = [temp_dict[_dict["id"]]["value"], _dict["value"]]
+    # look for duplicate variables in variable list and combine any found
+
+    checked_variables_list = []  # final variable list with combined duplicate variables
+    temp_dict = {}  # used to create new dictionary without any duplicate variables (will convert to list)
+    for var_dict in variables_list:
+        if var_dict["id"] not in temp_dict:  # this variable is the first present in the list with specified id
+            temp_dict[var_dict["id"]] = var_dict
+        else:  # this variable has already been present in the list, add it to the existing variable dictionary
+            for key, val in var_dict.items():
+                if key == "value":  # add the value to the value list for specified variable
+                    if not isinstance(temp_dict[var_dict["id"]]["value"], list):
+                        temp_dict[var_dict["id"]]["value"] = [temp_dict[var_dict["id"]]["value"], var_dict["value"]]
                     else:
-                        temp_dict[_dict["id"]]["value"].append(_dict["value"])
-                elif key == "comment":
-                    temp_dict[_dict["id"]]["comment"] += ("; " + _dict["comment"])
-                elif key == "metaItems":
-                    for item in _dict["metaItems"]:
-                        p = False
-                        for i in temp_dict[_dict["id"]]["metaItems"]:
-                            if item["id"] == i["id"]:
-                                if not isinstance(i["value"], list):
+                        temp_dict[var_dict["id"]]["value"].append(var_dict["value"])
+                elif key == "comment":  # append any comments to the existing variable comments
+                    if "comment" in temp_dict[var_dict["id"]]:
+                        temp_dict[var_dict["id"]]["comment"] += ("; " + var_dict["comment"])
+                    else:
+                        temp_dict[var_dict["id"]]["comment"] = var_dict["comment"]
+                elif key == "metaItems":  # check to see if meta item already exists
+                    for item in var_dict["metaItems"]:
+                        new_meta_item = True
+                        for i in temp_dict[var_dict["id"]]["metaItems"]:
+                            if item["id"] == i["id"]:  # meta item already in metaItems
+                                if not isinstance(i["value"], list):  # create list with all meta item values
                                     i["value"] = [i["value"], item["value"]]
                                 else:
-                                    i["value"].append(item["value"])
-                                p = True
+                                    i["value"].append(item["value"])  # add meta item value to the value list
+                                new_meta_item = False
                                 break
-                        if not p:
-                            temp_dict[_dict["id"]]["metaItems"].append(item)
-        else:
-            temp_dict[_dict["id"]] = _dict
+                        if new_meta_item:  # add new meta item tto meta items list
+                            temp_dict[var_dict["id"]]["metaItems"].append(item)
 
-    for val in temp_dict.values():
+    for val in temp_dict.values():  # convert variables dictionary to variables list format
         checked_variables_list.append(val)
 
     return checked_variables_list
