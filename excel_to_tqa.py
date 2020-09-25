@@ -64,11 +64,7 @@ def upload_excel_file(excel_file, config_file):
     report_date = get_report_date(config_dict, wb, excel_file)
     report_comment = get_report_comments(config_dict, wb)
     finalize = get_finalize_value(config_dict, wb)
-
-    if 'mode' in config_dict:
-        mode = config_dict['mode']
-    else:
-        mode = "save_append"
+    mode = get_mode(config_dict, wb)
 
     print("Schedule id: ", sched_id)
     print("Variables: ", variable_list)
@@ -188,3 +184,19 @@ def get_finalize_value(config_dict, wb):
                                               sheet['finalize']['finalizeCellColumn'], excel_sheet))
 
     return finalize
+
+
+def get_mode(config_dict, wb):
+    # get the mode from the excel file or config file, if it is present
+    mode = None
+
+    if "mode" in config_dict:  # mode is entered in config file
+        mode = config_dict["mode"]
+
+    if mode is None:
+        for sheet in config_dict['sheets']:
+            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+            if 'mode' in sheet:  # mode is in excel file
+                mode = get_cell_value(sheet['mode']['modeCellRow'], sheet['mode']['modeCellColumn'], excel_sheet)
+
+    return mode
