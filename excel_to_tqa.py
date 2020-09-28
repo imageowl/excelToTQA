@@ -96,9 +96,9 @@ def get_range_cell_values(variable, excel_sheet):
                                                      variable["range"]["valueStartColumn"], excel_sheet)
     last_val, last_row, last_col = get_cell_value(variable["range"]["valueEndRow"],
                                                   variable["range"]["valueEndColumn"], excel_sheet)
-    for rowNum in range(first_row, last_row + 1):
-        for colNum in range(first_col, last_col + 1):
-            value = get_cell_value(rowNum, colNum + 1, excel_sheet)[0]
+    for row_num in range(first_row, last_row + 1):
+        for col_num in range(first_col, last_col + 1):
+            value = get_cell_value(row_num, col_num + 1, excel_sheet)[0]
             variable_values.append(value)
 
     return variable_values
