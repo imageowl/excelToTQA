@@ -16,32 +16,9 @@ def excel_to_config_file(excel_file):
 
         find_mode(sheet, config_dict)
 
-        machine_name_cell = find_value_in_sheet(sheet, 'Machine Name')
-        if machine_name_cell is not None:  # find machine name in sheet
-            row, col = machine_name_cell
-            machine_name = sheet.cell_value(row+1, col)
-            config_dict["machineName"] = machine_name.strip()
-        else:
-            machine_cell = find_value_in_sheet(sheet, 'machine')
-            if machine_cell is not None:  # find machine name row and column in sheet
-                row, col = machine_cell
-                machine_row = int(sheet.cell_value(row, col+1))
-                machine_col = sheet.cell_value(row, col+2)
-                config_dict["sheets"][-1]["machine"] = {"machineCellRow": machine_row, "machineCellColumn": machine_col}
+        find_machine(sheet, config_dict)
 
-        schedule_name_cell = find_value_in_sheet(sheet, 'Schedule Name')
-        if schedule_name_cell is not None:  # find schedule name in sheet
-            row, col = schedule_name_cell
-            schedule_name = sheet.cell_value(row+1, col)
-            config_dict["scheduleName"] = schedule_name.strip()
-        else:
-            schedule_cell = find_value_in_sheet(sheet, 'schedule')
-            if schedule_cell is not None:  # find schedule name row and column in sheet
-                row, col = schedule_cell
-                schedule_row = int(sheet.cell_value(row, col+1))
-                schedule_col = sheet.cell_value(row, col+2)
-                config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row,
-                                                         "scheduleCellColumn": schedule_col}
+        find_schedule(sheet, config_dict)
 
         date_cell = find_value_in_sheet(sheet, 'Report Date')
         if date_cell is not None:  # find date in sheet
@@ -155,6 +132,37 @@ def find_mode(sheet, config_dict):
             mode_row = int(sheet.cell_value(row, col + 1))
             mode_col = sheet.cell_value(row, col + 2)
             config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
+
+
+def find_machine(sheet, config_dict):
+    machine_name_cell = find_value_in_sheet(sheet, 'Machine Name')
+    if machine_name_cell is not None:  # find machine name in sheet
+        row, col = machine_name_cell
+        machine_name = sheet.cell_value(row + 1, col)
+        config_dict["machineName"] = machine_name.strip()
+    else:
+        machine_cell = find_value_in_sheet(sheet, 'machine')
+        if machine_cell is not None:  # find machine name row and column in sheet
+            row, col = machine_cell
+            machine_row = int(sheet.cell_value(row, col + 1))
+            machine_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["machine"] = {"machineCellRow": machine_row, "machineCellColumn": machine_col}
+
+
+def find_schedule(sheet, config_dict):
+    schedule_name_cell = find_value_in_sheet(sheet, 'Schedule Name')
+    if schedule_name_cell is not None:  # find schedule name in sheet
+        row, col = schedule_name_cell
+        schedule_name = sheet.cell_value(row + 1, col)
+        config_dict["scheduleName"] = schedule_name.strip()
+    else:
+        schedule_cell = find_value_in_sheet(sheet, 'schedule')
+        if schedule_cell is not None:  # find schedule name row and column in sheet
+            row, col = schedule_cell
+            schedule_row = int(sheet.cell_value(row, col + 1))
+            schedule_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row,
+                                                     "scheduleCellColumn": schedule_col}
 
 
 def write_to_json_file(config_dict):
