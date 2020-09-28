@@ -136,19 +136,23 @@ def get_meta_item_values(sched_id, var_id, variable, excel_sheet):
     all_var_meta_items = []  # every possible meta item that could be present for this variable
     var_meta_items = []  # the meta items present in the config file and their associated values
 
+    # find meta item ids by first, getting all the possible meta items for this variable, and second, picking out the
+    # meta items present in the config file
     sched_variables = tqa.get_schedule_variables(sched_id)
     for sched_var in sched_variables['json']['variables']:
         if sched_var['id'] == var_id:
+            # all the possible meta items for this variable
             all_var_meta_items = sched_var['metaItems']
     for var_meta_item in variable['metaItems']:
         for meta_item in all_var_meta_items:
             if meta_item['name'] == var_meta_item['name']:
+                # meta item present in config file
                 meta_item_id = meta_item['id']
 
-        if "range" not in var_meta_item:
+        if "range" not in var_meta_item:  # meta item has only one value
             meta_item_value = get_cell_value(var_meta_item['valueCellRow'], var_meta_item['valueCellColumn'],
                                              excel_sheet)[0]
-        else:
+        else:  # meta item has multiple values
             meta_item_value = get_range_cell_values(var_meta_item, excel_sheet)
 
         var_meta_items.append({'id': meta_item_id, 'value': meta_item_value})
