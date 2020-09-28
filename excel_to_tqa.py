@@ -40,22 +40,7 @@ def upload_excel_file(excel_file, config_file):
             variable_list.append({'id': var_id, 'value': val})
 
             if 'metaItems' in var:
-                meta_items = []
-                sched_vars = tqa.get_schedule_variables(sched_id)
-                for idx, s in enumerate(sched_vars['json']['variables']):
-                    if s['id'] == var_id:
-                        var_meta_items = s['metaItems']
-                for item in var['metaItems']:
-                    for i in var_meta_items:
-                        if i['name'] == item['name']:
-                            meta_item_id = i['id']
-
-                    if "range" not in item:
-                        meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)[0]
-                    else:
-                        meta_val = get_range_cell_values(item, excel_sheet)
-
-                    meta_items.append({'id': meta_item_id, 'value': meta_val})
+                meta_items = get_meta_item_values(sched_id, var_id, var, excel_sheet)
 
                 variable_list[-1]['metaItems'] = meta_items
 
@@ -128,19 +113,40 @@ def get_schedule_id(config_dict, wb):
         excel_sheet = wb.sheet_by_name(sheet['sheetName'])
         if 'machine' in sheet:  # machine name is in excel file
             machine = get_cell_value(sheet['machine']['machineCellRow'], sheet['machine']['machineCellColumn'],
-                                     excel_sheet)[0]
+                                     excel_sheet)[0].strip()
         elif 'machineName' in config_dict:  # machine name is in config file
-            machine = config_dict['machineName']
+            machine = config_dict['machineName'].strip()
         machine_id = tqa.get_machine_id_from_str(machine)
 
         if 'schedule' in sheet:  # schedule name is in excel file
             schedule = get_cell_value(sheet['schedule']['scheduleCellRow'], sheet['schedule']['scheduleCellColumn'],
-                                      excel_sheet)[0]
+                                      excel_sheet)[0].strip()
         elif 'scheduleName' in config_dict:  # schedule name is in config file
-            schedule = config_dict['scheduleName']
+            schedule = config_dict['scheduleName'].strip()
         schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
 
     return schedule_id
+
+
+def get_meta_item_values(sched_id, var_id, var, excel_sheet):
+    meta_items = []
+    sched_vars = tqa.get_schedule_variables(sched_id)
+    for idx, s in enumerate(sched_vars['json']['variables']):
+        if s['id'] == var_id:
+            var_meta_items = s['metaItems']
+    for item in var['metaItems']:
+        for i in var_meta_items:
+            if i['name'] == item['name']:
+                meta_item_id = i['id']
+
+        if "range" not in item:
+            meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)[0]
+        else:
+            meta_val = get_range_cell_values(item, excel_sheet)
+
+        meta_items.append({'id': meta_item_id, 'value': meta_val})
+
+    return meta_items
 
 
 def check_for_variable_duplicates(variables_list):
@@ -181,7 +187,6 @@ def check_for_variable_duplicates(variables_list):
         checked_variables_list.append(val)
 
     return checked_variables_list
-
 
 
 def get_report_date(config_dict, wb, excel_file):
