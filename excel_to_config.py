@@ -95,18 +95,18 @@ def excel_to_config_file(excel_file):
         variables_table_cell = find_value_in_sheet(sheet, 'Variables Table')
         if variables_table_cell is not None:  # find table with variables in sheet
             config_dict["sheets"][-1]["sheetVariables"] = []
-            row, col = variables_table_cell
+            variables_table_row, variables_table_col = variables_table_cell
             is_empty = False
-            row_idx = row+2
+            row_idx = variables_table_row+2
             while is_empty is False:  # add all variables to config_dict
-                variable_name = sheet.cell_value(row_idx, col).strip()
+                variable_name = sheet.cell_value(row_idx, variables_table_col).strip()
                 if len(variable_name) != 0:
-                    variable_row = int(sheet.cell_value(row_idx, col+1))
-                    variable_col = sheet.cell_value(row_idx, col+2)
+                    variable_row = int(sheet.cell_value(row_idx, variables_table_col+1))
+                    variable_col = sheet.cell_value(row_idx, variables_table_col+2)
                     config_dict["sheets"][-1]["sheetVariables"].append({"name": variable_name.strip(),
                                                                         "valueCellRow": variable_row,
                                                                         "valueCellColumn": variable_col})
-                    if sheet.cell_value(row_idx, col+3).lower() == "yes":  # variable has meta items
+                    if sheet.cell_value(row_idx, variables_table_col+3).lower() == "yes":  # variable has meta items
                         # add all meta items to config_dict
                         config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"] = []
                         meta_items_table_row, meta_items_table_col = find_value_in_sheet(sheet, 'Meta Items Table')
@@ -119,7 +119,7 @@ def excel_to_config_file(excel_file):
                                 config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"].append({"name": meta_item_var_name,
                                                         "valueCellRow": meta_items_row, "valueColumn": meta_items_col})
 
-                    if sheet.cell_value(row_idx, col+4).lower() == "yes":  # variable has a variable comment
+                    if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has a variable comment
                         # add variable comment to config_dict
                         comments_table_row, comments_table_col = find_value_in_sheet(sheet, 'Comments Table')
                         for rowNum in range(comments_table_row, sheet.nrows):  # only look in comments table
