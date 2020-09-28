@@ -253,7 +253,7 @@ def get_mode(config_dict, excel_workbook):
     if mode is None:  # if mode is not specified, default is 'save_append'
         mode = 'save_append'
 
-    if " " in mode.strip():
+    if " " in mode.strip():  # replace any spaces with underscores (ex: 'save append' -> 'save_append')
         mode = mode.replace(" ", "_")
 
     return mode
