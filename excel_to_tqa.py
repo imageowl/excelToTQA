@@ -68,16 +68,17 @@ def upload_excel_file(excel_file, config_file):
 
 
 def load_json_file(config_file):
+    # load the json from the config file into a dictionary
     with open(config_file) as file:
         config_dict = json.load(file)
-
     return config_dict
 
 
 def get_cell_value(row_int, column, excel_sheet):
     # convert column from letter to integer and find the value in the cell
     if isinstance(column, str):  # column input as letter
-        column = column.upper()
+        # convert letter to its ascii value, then to the column index in the excel sheet
+        column = column.upper()  # make sure letter is uppercase
         if len(column) == 1:  # name of column is one letter
             col_int = abs(65 - ord(column))
         elif len(column) == 2:  # name of column is two letters
@@ -92,6 +93,7 @@ def get_cell_value(row_int, column, excel_sheet):
 
 
 def get_range_cell_values(variable, excel_sheet):
+    # find all the values associated with the specified variable
     variable_values = []
     first_val, first_row, first_col = get_cell_value(variable["range"]["valueStartRow"],
                                                      variable["range"]["valueStartColumn"], excel_sheet)
@@ -129,8 +131,11 @@ def get_schedule_id(config_dict, excel_workbook):
 
 
 def get_meta_item_values(sched_id, var_id, variable, excel_sheet):
-    all_var_meta_items = []
-    var_meta_items = []
+    # determine what meta items for this variable are present in the config file, and their associated values
+
+    all_var_meta_items = []  # every possible meta item that could be present for this variable
+    var_meta_items = []  # the meta items present in the config file and their associated values
+
     sched_variables = tqa.get_schedule_variables(sched_id)
     for sched_var in sched_variables['json']['variables']:
         if sched_var['id'] == var_id:
