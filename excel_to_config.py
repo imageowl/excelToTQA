@@ -3,6 +3,8 @@ import xlrd
 
 
 def excel_to_config_file(excel_file):
+    # take the information in the excel file and convert it to the json config file of a specific format
+
     config_dict = {"sheets": []}  # dictionary that will be used to create json config file
     excel_workbook = xlrd.open_workbook(excel_file)
 
@@ -10,32 +12,9 @@ def excel_to_config_file(excel_file):
         sheet_name = sheet.name
         config_dict["sheets"].append({"sheetName": sheet_name})
 
-        finalize_cell = find_value_in_sheet(sheet, 'Finalize')
-        if finalize_cell is not None:  # find finalize in sheet
-            row, col = finalize_cell
-            finalize_val = int(sheet.cell_value(row+1, col))
-            config_dict["finalize"] = finalize_val
-        else:
-            finalize_cell = find_value_in_sheet(sheet, 'finalize')
-            if finalize_cell is not None:  # find finalize value row and column in sheet
-                row, col = finalize_cell
-                finalize_row = int(sheet.cell_value(row, col+1))
-                finalize_col = sheet.cell_value(row, col+2)
-                config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
-                                                         "finalizeCellColumn": finalize_col}
+        find_finalize(sheet, config_dict)
 
-        mode_cell = find_value_in_sheet(sheet, 'Mode')
-        if mode_cell is not None:  # find mode in sheet
-            row, col = mode_cell
-            mode_val = sheet.cell_value(row+1, col)
-            config_dict["mode"] = mode_val.strip()
-        else:
-            mode_cell = find_value_in_sheet(sheet, 'mode')
-            if mode_cell is not None:  # find mode value row and column in sheet
-                row, col = mode_cell
-                mode_row = int(sheet.cell_value(row, col+1))
-                mode_col = sheet.cell_value(row, col+2)
-                config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
+        find_mode(sheet, config_dict)
 
         machine_name_cell = find_value_in_sheet(sheet, 'Machine Name')
         if machine_name_cell is not None:  # find machine name in sheet
@@ -145,6 +124,37 @@ def find_value_in_sheet(sheet, val):
         for row_num in range(sheet.nrows):
             if sheet.cell_value(row_num, col_num) == val:
                 return row_num, col_num
+
+
+def find_finalize(sheet, config_dict):
+    finalize_cell = find_value_in_sheet(sheet, 'Finalize')
+    if finalize_cell is not None:  # find finalize in sheet
+        row, col = finalize_cell
+        finalize_val = int(sheet.cell_value(row + 1, col))
+        config_dict["finalize"] = finalize_val
+    else:
+        finalize_cell = find_value_in_sheet(sheet, 'finalize')
+        if finalize_cell is not None:  # find finalize value row and column in sheet
+            row, col = finalize_cell
+            finalize_row = int(sheet.cell_value(row, col + 1))
+            finalize_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
+                                                     "finalizeCellColumn": finalize_col}
+
+
+def find_mode(sheet, config_dict):
+    mode_cell = find_value_in_sheet(sheet, 'Mode')
+    if mode_cell is not None:  # find mode in sheet
+        row, col = mode_cell
+        mode_val = sheet.cell_value(row + 1, col)
+        config_dict["mode"] = mode_val.strip()
+    else:
+        mode_cell = find_value_in_sheet(sheet, 'mode')
+        if mode_cell is not None:  # find mode value row and column in sheet
+            row, col = mode_cell
+            mode_row = int(sheet.cell_value(row, col + 1))
+            mode_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
 
 
 def write_to_json_file(config_dict):
