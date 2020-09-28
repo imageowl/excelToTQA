@@ -104,48 +104,50 @@ def get_range_cell_values(variable, excel_sheet):
     return variable_values
 
 
-def get_schedule_id(config_dict, wb):
+def get_schedule_id(config_dict, excel_workbook):
     # get the schedule id using the schedule name and machine id
     schedule_id = None
 
-    for sheet in config_dict['sheets']:
-        excel_sheet = wb.sheet_by_name(sheet['sheetName'])
-        if 'machine' in sheet:  # machine name is in excel file
-            machine = get_cell_value(sheet['machine']['machineCellRow'], sheet['machine']['machineCellColumn'],
-                                     excel_sheet)[0].strip()
+    for config_sheet in config_dict['sheets']:
+        excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
+        if 'machine' in config_sheet:  # machine name is in excel file
+            machine_name = get_cell_value(config_sheet['machine']['machineCellRow'],
+                                          config_sheet['machine']['machineCellColumn'], excel_sheet)[0].strip()
         elif 'machineName' in config_dict:  # machine name is in config file
-            machine = config_dict['machineName'].strip()
-        machine_id = tqa.get_machine_id_from_str(machine)
+            machine_name = config_dict['machineName'].strip()
+        machine_id = tqa.get_machine_id_from_str(machine_name)
 
-        if 'schedule' in sheet:  # schedule name is in excel file
-            schedule = get_cell_value(sheet['schedule']['scheduleCellRow'], sheet['schedule']['scheduleCellColumn'],
-                                      excel_sheet)[0].strip()
+        if 'schedule' in config_sheet:  # schedule name is in excel file
+            schedule_name = get_cell_value(config_sheet['schedule']['scheduleCellRow'],
+                                           config_sheet['schedule']['scheduleCellColumn'], excel_sheet)[0].strip()
         elif 'scheduleName' in config_dict:  # schedule name is in config file
-            schedule = config_dict['scheduleName'].strip()
-        schedule_id = tqa.get_schedule_id_from_str(schedule, machine_id)
+            schedule_name = config_dict['scheduleName'].strip()
+        schedule_id = tqa.get_schedule_id_from_str(schedule_name, machine_id)
 
     return schedule_id
 
 
-def get_meta_item_values(sched_id, var_id, var, excel_sheet):
-    meta_items = []
-    sched_vars = tqa.get_schedule_variables(sched_id)
-    for idx, s in enumerate(sched_vars['json']['variables']):
-        if s['id'] == var_id:
-            var_meta_items = s['metaItems']
-    for item in var['metaItems']:
-        for i in var_meta_items:
-            if i['name'] == item['name']:
-                meta_item_id = i['id']
+def get_meta_item_values(sched_id, var_id, variable, excel_sheet):
+    all_var_meta_items = []
+    var_meta_items = []
+    sched_variables = tqa.get_schedule_variables(sched_id)
+    for sched_var in sched_variables['json']['variables']:
+        if sched_var['id'] == var_id:
+            all_var_meta_items = sched_var['metaItems']
+    for var_meta_item in variable['metaItems']:
+        for meta_item in all_var_meta_items:
+            if meta_item['name'] == var_meta_item['name']:
+                meta_item_id = meta_item['id']
 
-        if "range" not in item:
-            meta_val = get_cell_value(item['valueCellRow'], item['valueCellColumn'], excel_sheet)[0]
+        if "range" not in var_meta_item:
+            meta_item_value = get_cell_value(var_meta_item['valueCellRow'], var_meta_item['valueCellColumn'],
+                                             excel_sheet)[0]
         else:
-            meta_val = get_range_cell_values(item, excel_sheet)
+            meta_item_value = get_range_cell_values(var_meta_item, excel_sheet)
 
-        meta_items.append({'id': meta_item_id, 'value': meta_val})
+        var_meta_items.append({'id': meta_item_id, 'value': meta_item_value})
 
-    return meta_items
+    return var_meta_items
 
 
 def check_for_variable_duplicates(variables_list):
