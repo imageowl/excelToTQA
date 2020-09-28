@@ -3,7 +3,6 @@ from dateutil import parser
 import sys
 import os.path
 import json
-from string import ascii_uppercase
 import xlrd
 
 TQA_PATH = r'/Users/annafronhofer/PycharmProjects/pyTQA'
@@ -17,43 +16,43 @@ def upload_excel_file(excel_file, config_file):
 
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
     config_sheets_dict = config_dict['sheets']  # dictionary object of the excel sheets
-    wb = xlrd.open_workbook(excel_file)
+    excel_workbook = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
-    sched_id = get_schedule_id(config_dict, wb)  # determine the id of the schedule
+    sched_id = get_schedule_id(config_dict, excel_workbook)  # determine the id of the schedule
     if sched_id is None:
         error_msg = "The schedule name and machine name must be in the config file, or their locations in the excel " \
                     "file must be in the config file."
         raise ValueError("Error: The schedule id could not be found.", error_msg)
 
     for config_sheet in config_sheets_dict:
-        excel_sheet = wb.sheet_by_name(config_sheet['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
 
-        for var in config_sheet['sheetVariables']:
-            var_id = tqa.get_variable_id_from_string(var['name'], sched_id)[0]
+        for variable in config_sheet['sheetVariables']:
+            variable_id = tqa.get_variable_id_from_string(variable['name'], sched_id)[0]
 
-            if "range" not in var:
-                val = get_cell_value(var['valueCellRow'], var['valueCellColumn'], excel_sheet)[0]
+            if "range" not in variable:
+                variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
             else:
-                val = get_range_cell_values(var, excel_sheet)
+                variable_value = get_range_cell_values(variable, excel_sheet)
 
-            variable_list.append({'id': var_id, 'value': val})
+            variable_list.append({'id': variable_id, 'value': variable_value})
 
-            if 'metaItems' in var:
-                meta_items = get_meta_item_values(sched_id, var_id, var, excel_sheet)
+            if 'metaItems' in variable:
+                meta_items = get_meta_item_values(sched_id, variable_id, variable, excel_sheet)
 
                 variable_list[-1]['metaItems'] = meta_items
 
-            if 'comment' in var:
-                var_comment = get_cell_value(var['comment']['varCommentCellRow'],
-                                             var['comment']['varCommentCellColumn'], excel_sheet)[0]
+            if 'comment' in variable:
+                var_comment = get_cell_value(variable['comment']['varCommentCellRow'],
+                                             variable['comment']['varCommentCellColumn'], excel_sheet)[0]
                 variable_list[-1]['comment'] = var_comment
 
     final_variable_list = check_for_variable_duplicates(variable_list)
-    report_date = get_report_date(config_dict, wb, excel_file)
-    report_comment = get_report_comments(config_dict, wb)
-    finalize = get_finalize_value(config_dict, wb)
-    mode = get_mode(config_dict, wb)
+    report_date = get_report_date(config_dict, excel_workbook, excel_file)
+    report_comment = get_report_comments(config_dict, excel_workbook)
+    finalize = get_finalize_value(config_dict, excel_workbook)
+    mode = get_mode(config_dict, excel_workbook)
 
     print("Schedule id: ", sched_id)
     print("Variables: ", final_variable_list)
