@@ -12,8 +12,8 @@ def excel_to_config_file(excel_file):
         sheet_name = sheet.name
         config_dict["sheets"].append({"sheetName": sheet_name})
 
-        if finalize_val is None:  # find finalize in sheet
-            finalize_cell = find_value_in_sheet(sheet, 'Finalize')
+        if finalize_val is None:
+            finalize_cell = find_value_in_sheet(sheet, 'Finalize')  # find finalize in sheet
             if finalize_cell is not None:
                 row, col = finalize_cell
                 finalize_val = int(sheet.cell_value(row+1, col))
@@ -27,8 +27,8 @@ def excel_to_config_file(excel_file):
                     config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
                                                              "finalizeCellColumn": finalize_col}
 
-        if mode_val is None:  # find mode in sheet
-            mode_cell = find_value_in_sheet(sheet, 'Mode')
+        if mode_val is None:
+            mode_cell = find_value_in_sheet(sheet, 'Mode')  # find mode in sheet
             if mode_cell is not None:
                 row, col = mode_cell
                 mode_val = sheet.cell_value(row+1, col)
@@ -75,13 +75,19 @@ def excel_to_config_file(excel_file):
             date_col = sheet.cell_value(row, col+2)
             config_dict["sheets"][-1]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
 
-        report_comment_cell = find_value_in_sheet(sheet, 'report comment')
-        if report_comment_cell is not None:  # find report level comment row and column in sheet
+        report_comment_cell = find_value_in_sheet(sheet, 'Report Comment')
+        if report_comment_cell is not None:  # find mode in sheet
             row, col = report_comment_cell
-            report_comment_row = int(sheet.cell_value(row, col+1))
-            report_comment_col = sheet.cell_value(row, col+2)
-            config_dict["sheets"][-1]["reportComment"] = {"reportCommentCellRow": report_comment_row,
-                                                          "reportCommentCellColumn": report_comment_col}
+            report_comment_val = sheet.cell_value(row+1, col)
+            config_dict["report comment"] = report_comment_val.strip()
+        else:
+            report_comment_cell = find_value_in_sheet(sheet, 'report comment')
+            if report_comment_cell is not None:  # find report level comment row and column in sheet
+                row, col = report_comment_cell
+                report_comment_row = int(sheet.cell_value(row, col+1))
+                report_comment_col = sheet.cell_value(row, col+2)
+                config_dict["sheets"][-1]["reportComment"] = {"reportCommentCellRow": report_comment_row,
+                                                              "reportCommentCellColumn": report_comment_col}
 
         variables_table_cell = find_value_in_sheet(sheet, 'Variables Table')
         if variables_table_cell is not None:  # find table with variables in sheet
