@@ -218,7 +218,7 @@ def get_report_date(config_dict, excel_workbook, excel_file):
     return report_date
 
 
-def get_report_comments(config_dict, wb):
+def get_report_comments(config_dict, excel_workbook):
     # get the report comments from the excel file or config file, if there are any
     report_comment = None
 
@@ -227,7 +227,7 @@ def get_report_comments(config_dict, wb):
 
     if report_comment is None:
         for sheet in config_dict['sheets']:
-            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+            excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
             if 'reportComment' in sheet:  # report comment is in excel file
                 report_comment = get_cell_value(sheet['reportComment']['reportCommentCellRow'],
                                                 sheet['reportComment']['reportCommentCellColumn'], excel_sheet)[0]
@@ -235,7 +235,7 @@ def get_report_comments(config_dict, wb):
     return report_comment
 
 
-def get_finalize_value(config_dict, wb):
+def get_finalize_value(config_dict, excel_workbook):
     # get the finalize value from the excel file or config file, if it is present
     finalize = None
 
@@ -244,7 +244,7 @@ def get_finalize_value(config_dict, wb):
 
     if finalize is None:
         for sheet in config_dict['sheets']:
-            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+            excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
             if 'finalize' in sheet:  # finalize value is in excel file
                 finalize = int(get_cell_value(sheet['finalize']['finalizeCellRow'],
                                               sheet['finalize']['finalizeCellColumn'], excel_sheet)[0])
@@ -252,7 +252,7 @@ def get_finalize_value(config_dict, wb):
     return finalize
 
 
-def get_mode(config_dict, wb):
+def get_mode(config_dict, excel_workbook):
     # get the mode from the excel file or config file, if it is present
     mode = None
 
@@ -261,7 +261,7 @@ def get_mode(config_dict, wb):
 
     if mode is None:
         for sheet in config_dict['sheets']:
-            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
+            excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
             if 'mode' in sheet:  # mode is in excel file
                 mode = get_cell_value(sheet['mode']['modeCellRow'], sheet['mode']['modeCellColumn'], excel_sheet)[0]
 
