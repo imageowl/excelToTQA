@@ -3,44 +3,39 @@ import xlrd
 
 
 def excel_to_config_file(excel_file):
-    finalize_val = None
-    mode_val = None
     config_dict = {"sheets": []}  # dictionary that will be used to create json config file
-    wb = xlrd.open_workbook(excel_file)
+    excel_workbook = xlrd.open_workbook(excel_file)
 
-    for sheet in wb.sheets():
+    for sheet in excel_workbook.sheets():
         sheet_name = sheet.name
         config_dict["sheets"].append({"sheetName": sheet_name})
 
-        if finalize_val is None:
-            finalize_cell = find_value_in_sheet(sheet, 'Finalize')  # find finalize in sheet
-            if finalize_cell is not None:
+        finalize_cell = find_value_in_sheet(sheet, 'Finalize')
+        if finalize_cell is not None:  # find finalize in sheet
+            row, col = finalize_cell
+            finalize_val = int(sheet.cell_value(row+1, col))
+            config_dict["finalize"] = finalize_val
+        else:
+            finalize_cell = find_value_in_sheet(sheet, 'finalize')
+            if finalize_cell is not None:  # find finalize value row and column in sheet
                 row, col = finalize_cell
-                finalize_val = int(sheet.cell_value(row+1, col))
-                config_dict["finalize"] = finalize_val
-            else:
-                finalize_cell = find_value_in_sheet(sheet, 'finalize')
-                if finalize_cell is not None:  # find finalize value row and column in sheet
-                    row, col = finalize_cell
-                    finalize_row = int(sheet.cell_value(row, col+1))
-                    finalize_col = sheet.cell_value(row, col+2)
-                    config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
-                                                             "finalizeCellColumn": finalize_col}
+                finalize_row = int(sheet.cell_value(row, col+1))
+                finalize_col = sheet.cell_value(row, col+2)
+                config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
+                                                         "finalizeCellColumn": finalize_col}
 
-        if mode_val is None:
-            mode_cell = find_value_in_sheet(sheet, 'Mode')  # find mode in sheet
-            if mode_cell is not None:
+        mode_cell = find_value_in_sheet(sheet, 'Mode')
+        if mode_cell is not None:  # find mode in sheet
+            row, col = mode_cell
+            mode_val = sheet.cell_value(row+1, col)
+            config_dict["mode"] = mode_val.strip()
+        else:
+            mode_cell = find_value_in_sheet(sheet, 'mode')
+            if mode_cell is not None:  # find mode value row and column in sheet
                 row, col = mode_cell
-                mode_val = sheet.cell_value(row+1, col)
-                config_dict["mode"] = mode_val.strip()
-            else:
-                mode_cell = find_value_in_sheet(sheet, 'mode')
-                if mode_cell is not None:  # find mode value row and column in sheet
-                    row, col = mode_cell
-                    mode_row = int(sheet.cell_value(row, col+1))
-                    mode_col = sheet.cell_value(row, col+2)
-                    config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row,
-                                                         "modeCellColumn": mode_col}
+                mode_row = int(sheet.cell_value(row, col+1))
+                mode_col = sheet.cell_value(row, col+2)
+                config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
 
         machine_name_cell = find_value_in_sheet(sheet, 'Machine Name')
         if machine_name_cell is not None:  # find machine name in sheet
@@ -66,13 +61,14 @@ def excel_to_config_file(excel_file):
                 row, col = schedule_cell
                 schedule_row = int(sheet.cell_value(row, col+1))
                 schedule_col = sheet.cell_value(row, col+2)
-                config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row, "scheduleCellColumn": schedule_col}
+                config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row,
+                                                         "scheduleCellColumn": schedule_col}
 
         date_cell = find_value_in_sheet(sheet, 'Report Date')
         if date_cell is not None:  # find date in sheet
             row, col = date_cell
             date_val = sheet.cell_value(row + 1, col)
-            report_date = xlrd.xldate_as_datetime(date_val, wb.datemode)
+            report_date = xlrd.xldate_as_datetime(date_val, excel_workbook.datemode)
             config_dict["date"] = str(report_date)
         else:
             date_cell = find_value_in_sheet(sheet, 'date')
