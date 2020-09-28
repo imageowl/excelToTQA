@@ -68,18 +68,25 @@ def excel_to_config_file(excel_file):
                 schedule_col = sheet.cell_value(row, col+2)
                 config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row, "scheduleCellColumn": schedule_col}
 
-        date_cell = find_value_in_sheet(sheet, 'date')
-        if date_cell is not None:  # find date row and column in sheet
+        date_cell = find_value_in_sheet(sheet, 'Report Date')
+        if date_cell is not None:  # find date in sheet
             row, col = date_cell
-            date_row = int(sheet.cell_value(row, col+1))
-            date_col = sheet.cell_value(row, col+2)
-            config_dict["sheets"][-1]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
+            date_val = sheet.cell_value(row + 1, col)
+            report_date = xlrd.xldate_as_datetime(date_val, wb.datemode)
+            config_dict["date"] = str(report_date)
+        else:
+            date_cell = find_value_in_sheet(sheet, 'date')
+            if date_cell is not None:  # find date row and column in sheet
+                row, col = date_cell
+                date_row = int(sheet.cell_value(row, col+1))
+                date_col = sheet.cell_value(row, col+2)
+                config_dict["sheets"][-1]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
 
         report_comment_cell = find_value_in_sheet(sheet, 'Report Comment')
-        if report_comment_cell is not None:  # find mode in sheet
+        if report_comment_cell is not None:  # find report comment in sheet
             row, col = report_comment_cell
             report_comment_val = sheet.cell_value(row+1, col)
-            config_dict["report comment"] = report_comment_val.strip()
+            config_dict["reportComment"] = report_comment_val.strip()
         else:
             report_comment_cell = find_value_in_sheet(sheet, 'report comment')
             if report_comment_cell is not None:  # find report level comment row and column in sheet
