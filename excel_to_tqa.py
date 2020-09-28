@@ -64,15 +64,12 @@ def upload_excel_file(excel_file, config_file):
                                              var['comment']['varCommentCellColumn'], excel_sheet)[0]
                 variable_list[-1]['comment'] = var_comment
 
-    print("Intermediate: ", variable_list, '\n')
     final_variable_list = check_for_variable_duplicates(variable_list)
     report_date = get_report_date(config_dict, wb, excel_file)
     report_comment = get_report_comments(config_dict, wb)
     finalize = get_finalize_value(config_dict, wb)
     mode = get_mode(config_dict, wb)
 
-
-    print("")
     print("Schedule id: ", sched_id)
     print("Variables: ", final_variable_list)
     print("Report Date: ", report_date)
@@ -80,9 +77,8 @@ def upload_excel_file(excel_file, config_file):
     print("Finalize: ", finalize)
     print("Mode: ", mode)
 
-    response = 0
-    # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
-    #                                    finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
+    response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
+                                       finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
     return response
 
 
@@ -261,5 +257,8 @@ def get_mode(config_dict, wb):
             excel_sheet = wb.sheet_by_name(sheet['sheetName'])
             if 'mode' in sheet:  # mode is in excel file
                 mode = get_cell_value(sheet['mode']['modeCellRow'], sheet['mode']['modeCellColumn'], excel_sheet)[0]
+
+    if " " in mode.strip():
+        mode = mode.replace(" ", "_")
 
     return mode
