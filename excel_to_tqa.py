@@ -31,10 +31,10 @@ def upload_excel_file(excel_file, config_file):
         for variable in config_sheet['sheetVariables']:
             variable_id = tqa.get_variable_id_from_string(variable['name'], sched_id)[0]
 
-            if "range" not in variable:
+            if "range" not in variable:  # variable only has one value
                 variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
-            else:
-                variable_value = get_range_cell_values(variable, excel_sheet)
+            else:  # variable has multiple values
+                variable_value = get_range_cell_values(variable, excel_sheet)  # python list of all variable values
 
             variable_list.append({'id': variable_id, 'value': variable_value})
 
@@ -48,18 +48,19 @@ def upload_excel_file(excel_file, config_file):
                                                   variable['comment']['varCommentCellColumn'], excel_sheet)[0]
                 variable_list[-1]['comment'] = variable_comment
 
+    # get all the inputs needed for tqa.upload_test_results
     final_variable_list = check_for_variable_duplicates(variable_list)
-    report_date = get_report_date(config_dict, excel_workbook, excel_file)
     report_comment = get_report_comments(config_dict, excel_workbook)
     finalize = get_finalize_value(config_dict, excel_workbook)
     mode = get_mode(config_dict, excel_workbook)
+    report_date = get_report_date(config_dict, excel_workbook, excel_file)
 
     print("Schedule id: ", sched_id)
     print("Variables: ", final_variable_list)
-    print("Report Date: ", report_date)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
     print("Mode: ", mode)
+    print("Report Date: ", report_date)
 
     response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
                                        finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
@@ -190,34 +191,6 @@ def check_for_variable_duplicates(variables_list):
     return checked_variables_list
 
 
-def get_report_date(config_dict, excel_workbook, excel_file):
-    # to get the report date:
-    #   use the date entered in the config file
-    #   or use the date present in the excel file
-    #   or if there is no date in the config or excel file, use the date the excel file was last modified
-
-    report_date = None
-
-    if "date" in config_dict:  # report date is entered in config file
-        date = config_dict["date"]
-        report_date = parser.parse(date)
-
-    if report_date is None:
-        for config_sheet in config_dict['sheets']:
-            excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
-            if 'date' in config_sheet:  # report date is in excel file
-                date = get_cell_value(config_sheet['date']['dateCellRow'], config_sheet['date']['dateCellColumn'],
-                                      excel_sheet)[0]
-                report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
-
-    if report_date is None:
-        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date last modified
-
-    report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
-
-    return report_date
-
-
 def get_report_comments(config_dict, excel_workbook):
     # get the report comments from the excel file or config file, if there are any
     report_comment = None
@@ -269,3 +242,31 @@ def get_mode(config_dict, excel_workbook):
         mode = mode.replace(" ", "_")
 
     return mode
+
+
+def get_report_date(config_dict, excel_workbook, excel_file):
+    # to get the report date:
+    #   use the date entered in the config file
+    #   or use the date present in the excel file
+    #   or if there is no date in the config or excel file, use the date the excel file was last modified
+
+    report_date = None
+
+    if "date" in config_dict:  # report date is entered in config file
+        date = config_dict["date"]
+        report_date = parser.parse(date)
+
+    if report_date is None:
+        for config_sheet in config_dict['sheets']:
+            excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
+            if 'date' in config_sheet:  # report date is in excel file
+                date = get_cell_value(config_sheet['date']['dateCellRow'], config_sheet['date']['dateCellColumn'],
+                                      excel_sheet)[0]
+                report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
+
+    if report_date is None:
+        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date last modified
+
+    report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
+
+    return report_date
