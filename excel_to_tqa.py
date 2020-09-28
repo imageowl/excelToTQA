@@ -202,12 +202,12 @@ def check_for_variable_duplicates(variables_list):
 
 def get_report_comments(config_dict, excel_workbook):
     # get the report comments from the excel file or config file, if there are any
-    report_comment = None
+    report_comment = ''
 
     if "reportComment" in config_dict:  # report level comment is entered in config file
         report_comment = config_dict["reportComment"]
 
-    if report_comment is None:
+    if report_comment == '':
         for sheet in config_dict['sheets']:
             excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
             if 'reportComment' in sheet:  # report comment is in excel file
@@ -231,6 +231,9 @@ def get_finalize_value(config_dict, excel_workbook):
                 finalize = int(get_cell_value(sheet['finalize']['finalizeCellRow'],
                                               sheet['finalize']['finalizeCellColumn'], excel_sheet)[0])
 
+    if finalize is None:  # if finalize is not specified, default is zero
+        finalize = 0
+
     return finalize
 
 
@@ -246,6 +249,9 @@ def get_mode(config_dict, excel_workbook):
             excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
             if 'mode' in sheet:  # mode is in excel file
                 mode = get_cell_value(sheet['mode']['modeCellRow'], sheet['mode']['modeCellColumn'], excel_sheet)[0]
+
+    if mode is None:  # if mode is not specified, default is 'save_append'
+        mode = 'save_append'
 
     if " " in mode.strip():
         mode = mode.replace(" ", "_")
