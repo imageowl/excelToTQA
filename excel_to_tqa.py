@@ -159,7 +159,7 @@ def check_for_variable_duplicates(variables_list):
         if var_dict["id"] not in temp_dict:  # this variable is the first present in the list with specified id
             temp_dict[var_dict["id"]] = var_dict
         else:  # this variable has already been present in the list, add it to the existing variable dictionary
-            for key, val in var_dict.items():
+            for key in var_dict:
                 if key == "value":  # add the value to the value list for specified variable
                     if not isinstance(temp_dict[var_dict["id"]]["value"], list):
                         temp_dict[var_dict["id"]]["value"] = [temp_dict[var_dict["id"]]["value"], var_dict["value"]]
@@ -184,13 +184,13 @@ def check_for_variable_duplicates(variables_list):
                         if new_meta_item:  # add new meta item tto meta items list
                             temp_dict[var_dict["id"]]["metaItems"].append(var_item)
 
-    for val in temp_dict.values():  # convert variables dictionary to variables list format
-        checked_variables_list.append(val)
+    for value in temp_dict.values():  # convert variables dictionary to variables list format
+        checked_variables_list.append(value)
 
     return checked_variables_list
 
 
-def get_report_date(config_dict, wb, excel_file):
+def get_report_date(config_dict, excel_workbook, excel_file):
     # to get the report date:
     #   use the date entered in the config file
     #   or use the date present in the excel file
@@ -203,11 +203,12 @@ def get_report_date(config_dict, wb, excel_file):
         report_date = parser.parse(date)
 
     if report_date is None:
-        for sheet in config_dict['sheets']:
-            excel_sheet = wb.sheet_by_name(sheet['sheetName'])
-            if 'date' in sheet:  # report date is in excel file
-                date = get_cell_value(sheet['date']['dateCellRow'], sheet['date']['dateCellColumn'], excel_sheet)[0]
-                report_date = xlrd.xldate_as_datetime(date, wb.datemode)
+        for config_sheet in config_dict['sheets']:
+            excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
+            if 'date' in config_sheet:  # report date is in excel file
+                date = get_cell_value(config_sheet['date']['dateCellRow'], config_sheet['date']['dateCellColumn'],
+                                      excel_sheet)[0]
+                report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
 
     if report_date is None:
         report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date last modified
