@@ -1,5 +1,4 @@
 import json
-
 import xlrd
 
 
@@ -19,6 +18,14 @@ def excel_to_config_file(excel_file):
                 row, col = finalize_cell
                 finalize_val = int(sheet.cell_value(row+1, col))
                 config_dict["finalize"] = finalize_val
+            else:
+                finalize_cell = find_value_in_sheet(sheet, 'finalize')
+                if finalize_cell is not None:  # find finalize value row and column in sheet
+                    row, col = finalize_cell
+                    finalize_row = int(sheet.cell_value(row, col+1))
+                    finalize_col = sheet.cell_value(row, col+2)
+                    config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
+                                                             "finalizeCellColumn": finalize_col}
 
         if mode_val is None:  # find mode in sheet
             mode_cell = find_value_in_sheet(sheet, 'Mode')
@@ -26,6 +33,14 @@ def excel_to_config_file(excel_file):
                 row, col = mode_cell
                 mode_val = sheet.cell_value(row+1, col)
                 config_dict["mode"] = mode_val.strip()
+            else:
+                mode_cell = find_value_in_sheet(sheet, 'mode')
+                if mode_cell is not None:  # find mode value row and column in sheet
+                    row, col = mode_cell
+                    mode_row = int(sheet.cell_value(row, col+1))
+                    mode_col = sheet.cell_value(row, col+2)
+                    config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row,
+                                                         "modeCellColumn": mode_col}
 
         machine_name_cell = find_value_in_sheet(sheet, 'Machine Name')
         if machine_name_cell is not None:  # find machine name in sheet
