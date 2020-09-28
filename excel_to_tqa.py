@@ -44,9 +44,9 @@ def upload_excel_file(excel_file, config_file):
                 variable_list[-1]['metaItems'] = meta_items
 
             if 'comment' in variable:
-                var_comment = get_cell_value(variable['comment']['varCommentCellRow'],
-                                             variable['comment']['varCommentCellColumn'], excel_sheet)[0]
-                variable_list[-1]['comment'] = var_comment
+                variable_comment = get_cell_value(variable['comment']['varCommentCellRow'],
+                                                  variable['comment']['varCommentCellColumn'], excel_sheet)[0]
+                variable_list[-1]['comment'] = variable_comment
 
     final_variable_list = check_for_variable_duplicates(variable_list)
     report_date = get_report_date(config_dict, excel_workbook, excel_file)
@@ -73,35 +73,35 @@ def load_json_file(config_file):
     return config_dict
 
 
-def get_cell_value(row_int, var_col, excel_sheet):
+def get_cell_value(row_int, column, excel_sheet):
     # convert column from letter to integer and find the value in the cell
-    if isinstance(var_col, str):  # column input as letter
-        var_col = var_col.upper()
-        if len(var_col) == 1:  # name of column is one letter
-            col_int = abs(65-ord(var_col))
-        elif len(var_col) == 2:  # name of column is two letters
-            first_letter = (abs(65 - ord(var_col[0])) + 1) * 26
-            second_letter = abs(65 - ord(var_col[1]))
+    if isinstance(column, str):  # column input as letter
+        column = column.upper()
+        if len(column) == 1:  # name of column is one letter
+            col_int = abs(65 - ord(column))
+        elif len(column) == 2:  # name of column is two letters
+            first_letter = (abs(65 - ord(column[0])) + 1) * 26
+            second_letter = abs(65 - ord(column[1]))
             col_int = first_letter + second_letter
-    elif isinstance(var_col, int):  # column input as integer
-        col_int = var_col-1  # excel file starts at 1, xlrd indexing starts at 0
+    elif isinstance(column, int):  # column input as integer
+        col_int = column - 1  # excel file starts at 1, xlrd indexing starts at 0
 
     value = excel_sheet.cell_value(row_int - 1, col_int)
     return value, row_int, col_int
 
 
-def get_range_cell_values(var, excel_sheet):
-    vals = []
-    first_val, first_row, first_col = get_cell_value(var["range"]["valueStartRow"],
-                                                     var["range"]["valueStartColumn"], excel_sheet)
-    last_val, last_row, last_col = get_cell_value(var["range"]["valueEndRow"],
-                                                  var["range"]["valueEndColumn"], excel_sheet)
+def get_range_cell_values(variable, excel_sheet):
+    variable_values = []
+    first_val, first_row, first_col = get_cell_value(variable["range"]["valueStartRow"],
+                                                     variable["range"]["valueStartColumn"], excel_sheet)
+    last_val, last_row, last_col = get_cell_value(variable["range"]["valueEndRow"],
+                                                  variable["range"]["valueEndColumn"], excel_sheet)
     for rowNum in range(first_row, last_row + 1):
         for colNum in range(first_col, last_col + 1):
-            v = get_cell_value(rowNum, colNum + 1, excel_sheet)[0]
-            vals.append(v)
+            value = get_cell_value(rowNum, colNum + 1, excel_sheet)[0]
+            variable_values.append(value)
 
-    return vals
+    return variable_values
 
 
 def get_schedule_id(config_dict, wb):
