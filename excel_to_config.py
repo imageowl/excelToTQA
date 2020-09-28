@@ -20,33 +20,9 @@ def excel_to_config_file(excel_file):
 
         find_schedule(sheet, config_dict)
 
-        date_cell = find_value_in_sheet(sheet, 'Report Date')
-        if date_cell is not None:  # find date in sheet
-            row, col = date_cell
-            date_val = sheet.cell_value(row + 1, col)
-            report_date = xlrd.xldate_as_datetime(date_val, excel_workbook.datemode)
-            config_dict["date"] = str(report_date)
-        else:
-            date_cell = find_value_in_sheet(sheet, 'date')
-            if date_cell is not None:  # find date row and column in sheet
-                row, col = date_cell
-                date_row = int(sheet.cell_value(row, col+1))
-                date_col = sheet.cell_value(row, col+2)
-                config_dict["sheets"][-1]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
+        find_date(sheet, config_dict, excel_workbook)
 
-        report_comment_cell = find_value_in_sheet(sheet, 'Report Comment')
-        if report_comment_cell is not None:  # find report comment in sheet
-            row, col = report_comment_cell
-            report_comment_val = sheet.cell_value(row+1, col)
-            config_dict["reportComment"] = report_comment_val.strip()
-        else:
-            report_comment_cell = find_value_in_sheet(sheet, 'report comment')
-            if report_comment_cell is not None:  # find report level comment row and column in sheet
-                row, col = report_comment_cell
-                report_comment_row = int(sheet.cell_value(row, col+1))
-                report_comment_col = sheet.cell_value(row, col+2)
-                config_dict["sheets"][-1]["reportComment"] = {"reportCommentCellRow": report_comment_row,
-                                                              "reportCommentCellColumn": report_comment_col}
+        find_report_comment(sheet, config_dict)
 
         variables_table_cell = find_value_in_sheet(sheet, 'Variables Table')
         if variables_table_cell is not None:  # find table with variables in sheet
@@ -163,6 +139,38 @@ def find_schedule(sheet, config_dict):
             schedule_col = sheet.cell_value(row, col + 2)
             config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row,
                                                      "scheduleCellColumn": schedule_col}
+
+
+def find_date(sheet, config_dict, excel_workbook):
+    date_cell = find_value_in_sheet(sheet, 'Report Date')
+    if date_cell is not None:  # find date in sheet
+        row, col = date_cell
+        date_val = sheet.cell_value(row + 1, col)
+        report_date = xlrd.xldate_as_datetime(date_val, excel_workbook.datemode)
+        config_dict["date"] = str(report_date)
+    else:
+        date_cell = find_value_in_sheet(sheet, 'date')
+        if date_cell is not None:  # find date row and column in sheet
+            row, col = date_cell
+            date_row = int(sheet.cell_value(row, col + 1))
+            date_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
+
+
+def find_report_comment(sheet, config_dict):
+    report_comment_cell = find_value_in_sheet(sheet, 'Report Comment')
+    if report_comment_cell is not None:  # find report comment in sheet
+        row, col = report_comment_cell
+        report_comment_val = sheet.cell_value(row + 1, col)
+        config_dict["reportComment"] = report_comment_val.strip()
+    else:
+        report_comment_cell = find_value_in_sheet(sheet, 'report comment')
+        if report_comment_cell is not None:  # find report level comment row and column in sheet
+            row, col = report_comment_cell
+            report_comment_row = int(sheet.cell_value(row, col + 1))
+            report_comment_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["reportComment"] = {"reportCommentCellRow": report_comment_row,
+                                                          "reportCommentCellColumn": report_comment_col}
 
 
 def write_to_json_file(config_dict):
