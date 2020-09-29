@@ -125,7 +125,7 @@ def get_schedule_id(config_dict, excel_workbook):
                                            config_sheet['schedule']['scheduleCellColumn'], excel_sheet)[0].strip()
         elif 'scheduleName' in config_dict:  # schedule name is in config file
             schedule_name = config_dict['scheduleName'].strip()
-        schedule_id = tqa.get_schedule_id_from_str(schedule_name, machine_id)
+        schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
 
     return schedule_id
 
