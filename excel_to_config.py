@@ -13,13 +13,13 @@ def excel_to_config_file(excel_file):
     sheet_name = sheet.name
     config_dict["sheets"].append({"sheetName": sheet_name})
 
-    find_finalize(sheet, config_dict)
-
-    find_mode(sheet, config_dict)
-
     find_machine(sheet, config_dict)
 
     find_schedule(sheet, config_dict)
+
+    find_finalize(sheet, config_dict)
+
+    find_mode(sheet, config_dict)
 
     find_date(sheet, config_dict, excel_workbook)
 
