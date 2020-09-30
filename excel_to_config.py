@@ -160,12 +160,16 @@ def find_date(sheet, config_dict, excel_workbook):
 
 
 def find_report_comment(sheet, config_dict):
-    report_comment_cell = find_value_in_sheet(sheet, 'Report Comment')
-    if report_comment_cell is not None:  # find report comment in sheet
-        row, col = report_comment_cell
+    report_comment_val = ''
+
+    report_comment_header = find_value_in_sheet(sheet, 'Report Comment')
+    if report_comment_header is not None:  # find report comment in sheet
+        row, col = report_comment_header
         report_comment_val = sheet.cell_value(row + 1, col)
-        config_dict["reportComment"] = report_comment_val.strip()
-    else:
+        if report_comment_val != '':
+            config_dict["reportComment"] = report_comment_val.strip()
+
+    if report_comment_val == '':
         report_comment_cell = find_value_in_sheet(sheet, 'comment')
         if report_comment_cell is not None:  # find report level comment row and column in sheet
             row, col = report_comment_cell
