@@ -82,12 +82,16 @@ def find_finalize(sheet, config_dict):
 
 
 def find_mode(sheet, config_dict):
-    mode_cell = find_value_in_sheet(sheet, 'Save Mode')
-    if mode_cell is not None:  # find mode in sheet
-        row, col = mode_cell
+    mode_val = ''
+
+    mode_header = find_value_in_sheet(sheet, 'Save Mode')
+    if mode_header is not None:  # find mode in sheet
+        row, col = mode_header
         mode_val = sheet.cell_value(row + 1, col)
-        config_dict["mode"] = mode_val.strip()
-    else:
+        if mode_val != '':
+            config_dict["mode"] = mode_val.strip()
+
+    if mode_val == '':
         mode_cell = find_value_in_sheet(sheet, 'mode')
         if mode_cell is not None:  # find mode value row and column in sheet
             row, col = mode_cell
