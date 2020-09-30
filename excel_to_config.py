@@ -62,12 +62,16 @@ def find_value_in_sheet(sheet, val):
 
 
 def find_finalize(sheet, config_dict):
-    finalize_cell = find_value_in_sheet(sheet, 'Finalize Value')
-    if finalize_cell is not None:  # find finalize in sheet
-        row, col = finalize_cell
-        finalize_val = int(sheet.cell_value(row + 1, col))
-        config_dict["finalize"] = finalize_val
-    else:
+    finalize_val = ''
+
+    finalize_header = find_value_in_sheet(sheet, 'Finalize Value')
+    if finalize_header is not None:  # find finalize in sheet
+        row, col = finalize_header
+        finalize_val = sheet.cell_value(row + 1, col)
+        if finalize_val != '':
+            config_dict["finalize"] = int(finalize_val)
+
+    if finalize_val == '':
         finalize_cell = find_value_in_sheet(sheet, 'finalize')
         if finalize_cell is not None:  # find finalize value row and column in sheet
             row, col = finalize_cell
