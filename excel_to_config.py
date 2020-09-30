@@ -24,7 +24,7 @@ def excel_to_config_file(excel_file):
 
         find_report_comment(sheet, config_dict)
 
-        variables_table_cell = find_value_in_sheet(sheet, 'Variables Table')
+        variables_table_cell = find_value_in_sheet(sheet, 'Variables Section')
         if variables_table_cell is not None:  # find table with variables in sheet
             config_dict["sheets"][-1]["sheetVariables"] = []
             variables_table_row, variables_table_col = variables_table_cell
@@ -62,7 +62,7 @@ def find_value_in_sheet(sheet, val):
 
 
 def find_finalize(sheet, config_dict):
-    finalize_cell = find_value_in_sheet(sheet, 'Finalize')
+    finalize_cell = find_value_in_sheet(sheet, 'Finalize Value')
     if finalize_cell is not None:  # find finalize in sheet
         row, col = finalize_cell
         finalize_val = int(sheet.cell_value(row + 1, col))
@@ -78,7 +78,7 @@ def find_finalize(sheet, config_dict):
 
 
 def find_mode(sheet, config_dict):
-    mode_cell = find_value_in_sheet(sheet, 'Mode')
+    mode_cell = find_value_in_sheet(sheet, 'Save Mode')
     if mode_cell is not None:  # find mode in sheet
         row, col = mode_cell
         mode_val = sheet.cell_value(row + 1, col)
@@ -146,7 +146,7 @@ def find_report_comment(sheet, config_dict):
         report_comment_val = sheet.cell_value(row + 1, col)
         config_dict["reportComment"] = report_comment_val.strip()
     else:
-        report_comment_cell = find_value_in_sheet(sheet, 'report comment')
+        report_comment_cell = find_value_in_sheet(sheet, 'comment')
         if report_comment_cell is not None:  # find report level comment row and column in sheet
             row, col = report_comment_cell
             report_comment_row = int(sheet.cell_value(row, col + 1))
@@ -158,7 +158,7 @@ def find_report_comment(sheet, config_dict):
 def find_meta_item(config_dict, sheet, variable_name):
     # add all meta items to config_dict
     config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"] = []
-    meta_items_table_row, meta_items_table_col = find_value_in_sheet(sheet, 'Meta Items Table')
+    meta_items_table_row, meta_items_table_col = find_value_in_sheet(sheet, 'Meta Items Section')
     for row_num in range(meta_items_table_row, sheet.nrows):  # only look in meta items table
         found_var = sheet.cell_value(row_num, meta_items_table_col).strip()
         if found_var == variable_name:
@@ -172,7 +172,7 @@ def find_meta_item(config_dict, sheet, variable_name):
 
 def find_variable_comment(config_dict, sheet, variable_name):
     # add variable comment to config_dict
-    comments_table_row, comments_table_col = find_value_in_sheet(sheet, 'Comments Table')
+    comments_table_row, comments_table_col = find_value_in_sheet(sheet, 'Comments Section')
     for row_num in range(comments_table_row, sheet.nrows):  # only look in comments table
         found_var = sheet.cell_value(row_num, comments_table_col).strip()
         if found_var == variable_name:
