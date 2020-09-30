@@ -93,12 +93,16 @@ def find_mode(sheet, config_dict):
 
 
 def find_machine(sheet, config_dict):
-    machine_name_cell = find_value_in_sheet(sheet, 'Machine Name')
-    if machine_name_cell is not None:  # find machine name in sheet
-        row, col = machine_name_cell
-        machine_name = sheet.cell_value(row + 1, col)
-        config_dict["machineName"] = machine_name.strip()
-    else:
+    machine_name = ''
+
+    machine_name_header = find_value_in_sheet(sheet, 'Machine Name')
+    if machine_name_header is not None:  # find machine name in sheet
+        header_row, header_col = machine_name_header
+        machine_name = sheet.cell_value(header_row + 1, header_col)
+        if machine_name != '':
+            config_dict["machineName"] = machine_name.strip()
+
+    if machine_name == '':
         machine_cell = find_value_in_sheet(sheet, 'machine')
         if machine_cell is not None:  # find machine name row and column in sheet
             row, col = machine_cell
