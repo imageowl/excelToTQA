@@ -140,13 +140,17 @@ def find_schedule(sheet, config_dict):
 
 
 def find_date(sheet, config_dict, excel_workbook):
-    date_cell = find_value_in_sheet(sheet, 'Report Date')
-    if date_cell is not None:  # find date in sheet
-        row, col = date_cell
+    report_date = ''
+
+    date_header = find_value_in_sheet(sheet, 'Report Date')
+    if date_header is not None:  # find date in sheet
+        row, col = date_header
         date_val = sheet.cell_value(row + 1, col)
-        report_date = xlrd.xldate_as_datetime(date_val, excel_workbook.datemode)
-        config_dict["date"] = str(report_date)
-    else:
+        if date_val != '':
+            report_date = xlrd.xldate_as_datetime(date_val, excel_workbook.datemode)
+            config_dict["date"] = str(report_date)
+
+    if report_date == '':
         date_cell = find_value_in_sheet(sheet, 'date')
         if date_cell is not None:  # find date row and column in sheet
             row, col = date_cell
