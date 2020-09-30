@@ -61,45 +61,6 @@ def find_value_in_sheet(sheet, val):
                 return row_num, col_num
 
 
-def find_finalize(sheet, config_dict):
-    finalize_val = ''
-
-    finalize_header = find_value_in_sheet(sheet, 'Finalize Value')
-    if finalize_header is not None:  # find finalize in sheet
-        row, col = finalize_header
-        finalize_val = sheet.cell_value(row + 1, col)
-        if finalize_val != '':
-            config_dict["finalize"] = int(finalize_val)
-
-    if finalize_val == '':
-        finalize_cell = find_value_in_sheet(sheet, 'finalize')
-        if finalize_cell is not None:  # find finalize value row and column in sheet
-            row, col = finalize_cell
-            finalize_row = int(sheet.cell_value(row, col + 1))
-            finalize_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
-                                                     "finalizeCellColumn": finalize_col}
-
-
-def find_mode(sheet, config_dict):
-    mode_val = ''
-
-    mode_header = find_value_in_sheet(sheet, 'Save Mode')
-    if mode_header is not None:  # find mode in sheet
-        row, col = mode_header
-        mode_val = sheet.cell_value(row + 1, col)
-        if mode_val != '':
-            config_dict["mode"] = mode_val.strip()
-
-    if mode_val == '':
-        mode_cell = find_value_in_sheet(sheet, 'mode')
-        if mode_cell is not None:  # find mode value row and column in sheet
-            row, col = mode_cell
-            mode_row = int(sheet.cell_value(row, col + 1))
-            mode_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
-
-
 def find_machine(sheet, config_dict):
     machine_name = ''
 
@@ -137,6 +98,45 @@ def find_schedule(sheet, config_dict):
             schedule_col = sheet.cell_value(row, col + 2)
             config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row,
                                                      "scheduleCellColumn": schedule_col}
+
+
+def find_finalize(sheet, config_dict):
+    finalize_val = ''
+
+    finalize_header = find_value_in_sheet(sheet, 'Finalize Value')
+    if finalize_header is not None:  # find finalize in sheet
+        row, col = finalize_header
+        finalize_val = sheet.cell_value(row + 1, col)
+        if finalize_val != '':
+            config_dict["finalize"] = int(finalize_val)
+
+    if finalize_val == '':
+        finalize_cell = find_value_in_sheet(sheet, 'finalize')
+        if finalize_cell is not None:  # find finalize value row and column in sheet
+            row, col = finalize_cell
+            finalize_row = int(sheet.cell_value(row, col + 1))
+            finalize_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
+                                                     "finalizeCellColumn": finalize_col}
+
+
+def find_mode(sheet, config_dict):
+    mode_val = ''
+
+    mode_header = find_value_in_sheet(sheet, 'Save Mode')
+    if mode_header is not None:  # find mode in sheet
+        row, col = mode_header
+        mode_val = sheet.cell_value(row + 1, col)
+        if mode_val != '':
+            config_dict["mode"] = mode_val.strip()
+
+    if mode_val == '':
+        mode_cell = find_value_in_sheet(sheet, 'mode')
+        if mode_cell is not None:  # find mode value row and column in sheet
+            row, col = mode_cell
+            mode_row = int(sheet.cell_value(row, col + 1))
+            mode_col = sheet.cell_value(row, col + 2)
+            config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
 
 
 def find_date(sheet, config_dict, excel_workbook):
