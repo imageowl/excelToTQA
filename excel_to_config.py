@@ -97,8 +97,8 @@ def find_machine(sheet, config_dict):
 
     machine_name_header = find_value_in_sheet(sheet, 'Machine Name')
     if machine_name_header is not None:  # find machine name in sheet
-        header_row, header_col = machine_name_header
-        machine_name = sheet.cell_value(header_row + 1, header_col)
+        row, col = machine_name_header
+        machine_name = sheet.cell_value(row + 1, col)
         if machine_name != '':
             config_dict["machineName"] = machine_name.strip()
 
@@ -112,12 +112,16 @@ def find_machine(sheet, config_dict):
 
 
 def find_schedule(sheet, config_dict):
-    schedule_name_cell = find_value_in_sheet(sheet, 'Schedule Name')
-    if schedule_name_cell is not None:  # find schedule name in sheet
-        row, col = schedule_name_cell
+    schedule_name = ''
+
+    schedule_name_header = find_value_in_sheet(sheet, 'Schedule Name')
+    if schedule_name_header is not None:  # find schedule name in sheet
+        row, col = schedule_name_header
         schedule_name = sheet.cell_value(row + 1, col)
-        config_dict["scheduleName"] = schedule_name.strip()
-    else:
+        if schedule_name != '':
+            config_dict["scheduleName"] = schedule_name.strip()
+
+    if schedule_name == '':
         schedule_cell = find_value_in_sheet(sheet, 'schedule')
         if schedule_cell is not None:  # find schedule name row and column in sheet
             row, col = schedule_cell
