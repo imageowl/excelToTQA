@@ -28,8 +28,8 @@ def upload_excel_file(excel_file, config_file):
     for variable in config_data_dict['variables']:
         variable_id = tqa.get_variable_id_from_string(variable['name'], sched_id)[0]
 
+        excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'])
         if "range" not in variable:  # variable only has one value
-            excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'])
             variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
         else:  # variable has multiple values
             variable_value = get_range_cell_values(variable, excel_sheet)  # python list of all variable values
