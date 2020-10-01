@@ -25,19 +25,17 @@ def upload_excel_file(excel_file, config_file):
                     "file must be in the config file."
         raise ValueError("Error: The schedule id could not be found.", error_msg)
 
-    # for config_sheet in config_sheets_dict:
-    #     excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
-    #
-    #     for variable in config_sheet['sheetVariables']:
-    #         variable_id = tqa.get_variable_id_from_string(variable['name'], sched_id)[0]
-    #
-    #         if "range" not in variable:  # variable only has one value
-    #             variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
-    #         else:  # variable has multiple values
-    #             variable_value = get_range_cell_values(variable, excel_sheet)  # python list of all variable values
-    #
-    #         variable_list.append({'id': variable_id, 'value': variable_value})
-    #
+    for variable in config_data_dict['variables']:
+        variable_id = tqa.get_variable_id_from_string(variable['name'], sched_id)[0]
+
+        if "range" not in variable:  # variable only has one value
+            excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'])
+            variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
+        else:  # variable has multiple values
+            variable_value = get_range_cell_values(variable, excel_sheet)  # python list of all variable values
+
+        variable_list.append({'id': variable_id, 'value': variable_value})
+
     #         if 'metaItems' in variable:
     #             meta_items = get_meta_item_values(sched_id, variable_id, variable, excel_sheet)
     #
@@ -57,6 +55,7 @@ def upload_excel_file(excel_file, config_file):
 
     print("Schedule id: ", sched_id)
     # print("Variables: ", final_variable_list)
+    print("Variables: ", variable_list)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
     print("Mode: ", mode)
