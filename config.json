@@ -1,8 +1,8 @@
 {
   "finalize": 0,
   "mode": "save_append",
-  "machineName": "machine",
-  "scheduleName": "schedule",
+  "machine": "machine",
+  "schedule": "schedule",
   "date": "0000-00-00 00:00",
   "reportComment": "comment",
   "data": [
@@ -28,8 +28,8 @@
         "sheetName": "Sheet 1"
       },
       "date": {
-        "dateCellRow": 1,
-        "dateCellColumn": "C",
+        "cellRow": 1,
+        "cellColumn": "C",
         "sheetName": "Sheet 1"
       },
       "reportComment": {

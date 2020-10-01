@@ -52,10 +52,6 @@ def upload_excel_file(excel_file, config_file):
 
     # get all the inputs needed for tqa.upload_test_results
     final_variable_list = check_for_variable_duplicates(variable_list)
-    # report_comment = get_report_comments(config_dict, excel_workbook)
-    # finalize = get_finalize_value(config_dict, excel_workbook)
-    # mode = get_mode(config_dict, excel_workbook)
-    # report_date = get_report_date(config_dict, excel_workbook, excel_file)
 
     report_comment = get_header_value(config_dict, excel_workbook, 'reportComment')
     if report_comment is None:
@@ -87,9 +83,9 @@ def upload_excel_file(excel_file, config_file):
     print("Mode: ", mode)
     print("Report Date: ", report_date)
 
-    # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
-    #                                    finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
-    response = 0
+    response = tqa.upload_test_results(schedule_id=schedule_id, variable_data=final_variable_list, comment=report_comment,
+                                       finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
+    # response = 0
     return response
 
 
