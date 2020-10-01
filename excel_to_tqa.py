@@ -58,15 +58,24 @@ def upload_excel_file(excel_file, config_file):
     if report_comment is None:
         report_comment = ""
 
-    finalize = int(get_header_value(config_dict, excel_workbook, 'finalize'))
+    finalize = get_header_value(config_dict, excel_workbook, 'finalize')
     if finalize is None:
         finalize = 0
+    else:
+        finalize = int(finalize)
 
     mode = get_header_value(config_dict, excel_workbook, 'mode')
     if mode is None:
         mode = 'save_append'
 
-    report_date = get_report_date(config_dict, excel_workbook, excel_file)
+    date = get_header_value(config_dict, excel_workbook, 'date')
+    if date is None:
+        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))
+    if isinstance(date, float):
+        report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
+    if isinstance(date, str):
+        report_date = parser.parse(date)
+    report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
 
     print("Schedule id: ", sched_id)
     print("Variables: ", final_variable_list)
@@ -227,53 +236,6 @@ def get_header_value(config_dict, excel_workbook, header_name):
                                         excel_sheet)[0]
 
     return value
-
-
-def get_report_comments(config_dict, excel_workbook):
-    # get the report comments from the excel file or config file, if there are any
-    report_comment = ''
-
-    if 'reportComment' in config_dict:  # report level comment is entered in config file
-        report_comment = config_dict['reportComment']
-    elif 'reportComment' in config_dict['data'][0]:  # report level comment is entered in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['reportComment']['sheetName'].strip())
-        report_comment = get_cell_value(config_dict['data'][0]['reportComment']['reportCommentCellRow'],
-                                        config_dict['data'][0]['reportComment']['reportCommentCellColumn'],
-                                        excel_sheet)[0]
-    return report_comment
-
-
-def get_finalize_value(config_dict, excel_workbook):
-    # get the finalize value from the excel file or config file, if it is present
-    finalize = 0
-
-    if 'finalize' in config_dict:  # finalize value is entered in config file
-        finalize = config_dict['finalize']
-
-    elif 'finalize' in config_dict['data'][0]:  # finalize value is entered in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['finalize']['sheetName'].strip())
-        finalize = int(get_cell_value(config_dict['data'][0]['finalize']['finalizeCellRow'],
-                                      config_dict['data'][0]['finalize']['finalizeCellColumn'], excel_sheet)[0])
-
-    return finalize
-
-
-def get_mode(config_dict, excel_workbook):
-    # get the mode from the excel file or config file, if it is present
-    mode = 'save_append'
-
-    if 'mode' in config_dict:  # mode is entered in config file
-        mode = config_dict['mode']
-
-    elif 'mode' in config_dict['data'][0]:  # mode is entered in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['mode']['sheetName'].strip())
-        mode = get_cell_value(config_dict['data'][0]['mode']['modeCellRow'],
-                              config_dict['data'][0]['mode']['modeCellColumn'], excel_sheet)[0]
-
-    if " " in mode.strip():  # replace any spaces with underscores (ex: 'save append' -> 'save_append')
-        mode = mode.replace(" ", "_")
-
-    return mode
 
 
 def get_report_date(config_dict, excel_workbook, excel_file):

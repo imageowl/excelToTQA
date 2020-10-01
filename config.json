@@ -8,23 +8,23 @@
   "data": [
     {
       "finalize": {
-        "finalizeCellRow": 1,
-        "finalizeCellColumn": "E",
+        "cellRow": 1,
+        "cellColumn": "E",
         "sheetName": "Sheet 1"
       },
       "mode": {
-        "modeCellRow": 1,
-        "modeCellColumn": "F",
+        "cellRow": 1,
+        "cellColumn": "F",
         "sheetName": "Sheet 1"
       },
       "machine": {
-        "machineCellRow": 1,
-        "machineCellColumn": "A",
+        "cellRow": 1,
+        "cellColumn": "A",
         "sheetName": "Sheet 1"
       },
       "schedule": {
-        "scheduleCellRow": 1,
-        "scheduleCellColumn": "B",
+        "cellRow": 1,
+        "cellColumn": "B",
         "sheetName": "Sheet 1"
       },
       "date": {
@@ -33,8 +33,8 @@
         "sheetName": "Sheet 1"
       },
       "reportComment": {
-        "reportCommentCellRow": 1,
-        "reportCommentCellColumn": "D",
+        "cellRow": 1,
+        "cellColumn": "D",
         "sheetName": "Sheet 1"
       },
       "variables": [

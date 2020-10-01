@@ -17,6 +17,6 @@ tqa.load_json_credentials('SmariCredentials.json')
 print('Access Token: ', tqa.access_token)
 
 excel_file_path = "/Users/annafronhofer/Desktop/testFiles/LinacCTP504Copy.xlsx"
-config_file_path = "newConfig.json"
+config_file_path = "configTest2.json"
 response = excel_to_tqa.upload_excel_file(excel_file_path, config_file_path)
 print(response)
