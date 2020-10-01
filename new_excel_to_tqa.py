@@ -41,11 +41,12 @@ def upload_excel_file(excel_file, config_file):
 
             variable_list[-1]['metaItems'] = meta_items
 
-    #         if 'comment' in variable:
-    #             variable_comment = get_cell_value(variable['comment']['varCommentCellRow'],
-    #                                               variable['comment']['varCommentCellColumn'], excel_sheet)[0]
-    #             variable_list[-1]['comment'] = variable_comment
-    #
+        if 'comment' in variable:
+            excel_sheet = excel_workbook.sheet_by_name(variable['comment']['sheetName'])
+            variable_comment = get_cell_value(variable['comment']['varCommentCellRow'],
+                                              variable['comment']['varCommentCellColumn'], excel_sheet)[0]
+            variable_list[-1]['comment'] = variable_comment
+
     # # get all the inputs needed for tqa.upload_test_results
     # final_variable_list = check_for_variable_duplicates(variable_list)
     report_comment = get_report_comments(config_dict, excel_workbook)
