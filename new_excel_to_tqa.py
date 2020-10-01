@@ -36,11 +36,11 @@ def upload_excel_file(excel_file, config_file):
 
         variable_list.append({'id': variable_id, 'value': variable_value})
 
-    #         if 'metaItems' in variable:
-    #             meta_items = get_meta_item_values(sched_id, variable_id, variable, excel_sheet)
-    #
-    #             variable_list[-1]['metaItems'] = meta_items
-    #
+        if 'metaItems' in variable:
+            meta_items = get_meta_item_values(sched_id, variable_id, variable, excel_workbook)
+
+            variable_list[-1]['metaItems'] = meta_items
+
     #         if 'comment' in variable:
     #             variable_comment = get_cell_value(variable['comment']['varCommentCellRow'],
     #                                               variable['comment']['varCommentCellColumn'], excel_sheet)[0]
@@ -132,7 +132,7 @@ def get_schedule_id(config_dict, excel_workbook):
     return schedule_id
 
 
-def get_meta_item_values(sched_id, var_id, variable, excel_sheet):
+def get_meta_item_values(sched_id, var_id, variable, excel_workbook):
     # determine what meta items for this variable are present in the config file, and their associated values
 
     all_var_meta_items = []  # every possible meta item that could be present for this variable
@@ -151,6 +151,7 @@ def get_meta_item_values(sched_id, var_id, variable, excel_sheet):
                 # meta item present in config file
                 meta_item_id = meta_item['id']
 
+        excel_sheet = excel_workbook.sheet_by_name(var_meta_item['sheetName'])
         if "range" not in var_meta_item:  # meta item has only one value
             meta_item_value = get_cell_value(var_meta_item['valueCellRow'], var_meta_item['valueCellColumn'],
                                              excel_sheet)[0]
