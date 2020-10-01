@@ -53,15 +53,15 @@ def upload_excel_file(excel_file, config_file):
     report_comment = get_report_comments(config_dict, excel_workbook)
     finalize = get_finalize_value(config_dict, excel_workbook)
     mode = get_mode(config_dict, excel_workbook)
-    # report_date = get_report_date(config_dict, excel_workbook, excel_file)
+    report_date = get_report_date(config_dict, excel_workbook, excel_file)
 
     print("Schedule id: ", sched_id)
     # print("Variables: ", final_variable_list)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
     print("Mode: ", mode)
-    # print("Report Date: ", report_date)
-    #
+    print("Report Date: ", report_date)
+
     # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
     #                                    finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
     # return response
@@ -256,22 +256,17 @@ def get_report_date(config_dict, excel_workbook, excel_file):
     #   or use the date present in the excel file
     #   or if there is no date in the config or excel file, use the date the excel file was last modified
 
-    report_date = None
+    report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))
 
     if "date" in config_dict:  # report date is entered in config file
         date = config_dict["date"]
         report_date = parser.parse(date)
 
-    if report_date is None:
-        for config_sheet in config_dict['sheets']:
-            excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
-            if 'date' in config_sheet:  # report date is in excel file
-                date = get_cell_value(config_sheet['date']['dateCellRow'], config_sheet['date']['dateCellColumn'],
-                                      excel_sheet)[0]
-                report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
-
-    if report_date is None:
-        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date last modified
+    elif "date" in config_dict['data'][0]:
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['date']['sheetName'])
+        date = get_cell_value(config_dict['data'][0]['date']['dateCellRow'],
+                              config_dict['data'][0]['date']['dateCellColumn'], excel_sheet)[0]
+        report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
 
     report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
 
