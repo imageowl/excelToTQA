@@ -10,9 +10,6 @@ def excel_to_config_file(excel_file):
 
     sheet = excel_workbook.sheet_by_name('Config')
 
-    sheet_name = sheet.name
-    config_dict["sheets"].append({"sheetName": sheet_name})
-
     find_machine(sheet, config_dict)
 
     find_schedule(sheet, config_dict)
@@ -62,6 +59,15 @@ def find_value_in_sheet(sheet, val):
                 return row_num, col_num
 
 
+def find_sheet(sheet_name, config_dict):
+    for index, sheet in enumerate(config_dict["sheets"]):
+        if sheet["sheetName"] == sheet_name:
+            return index
+
+    config_dict["sheets"].append({"sheetName": sheet_name})
+    return -1
+
+
 def find_machine(sheet, config_dict):
     machine_name = ''
 
@@ -78,7 +84,10 @@ def find_machine(sheet, config_dict):
             row, col = machine_cell
             machine_row = int(sheet.cell_value(row, col + 1))
             machine_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["machine"] = {"machineCellRow": machine_row, "machineCellColumn": machine_col}
+            machine_sheet = sheet.cell_value(row, col + 3)
+            sheet_index = find_sheet(machine_sheet, config_dict)
+            config_dict["sheets"][sheet_index]["machine"] = {"machineCellRow": machine_row,
+                                                             "machineCellColumn": machine_col}
 
 
 def find_schedule(sheet, config_dict):
