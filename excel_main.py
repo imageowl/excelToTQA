@@ -4,10 +4,9 @@ TQA_PATH = r'/Users/annafronhofer/PycharmProjects/pyTQA'
 sys.path.insert(0, TQA_PATH)
 
 import tqa
-import excel_to_tqa
 import excel_to_config
 
-import new_excel_to_tqa
+import excel_to_tqa
 
 
 # excel_ex_file = "/Users/annafronhofer/Desktop/testFiles/Config Ex1.xlsx"
@@ -17,12 +16,7 @@ import new_excel_to_tqa
 tqa.load_json_credentials('SmariCredentials.json')
 print('Access Token: ', tqa.access_token)
 
-# excel_file_path = "/Users/annafronhofer/Desktop/testFiles/LinacCTP504Copy.xlsx"
-# config_file_path = "/Users/annafronhofer/PycharmProjects/excel_to_TQA/configTest1.json"
-# response = excel_to_tqa.upload_excel_file(excel_file_path, config_file_path)
-# print(response)
-
 excel_file_path = "/Users/annafronhofer/Desktop/testFiles/LinacCTP504Copy.xlsx"
 config_file_path = "/Users/annafronhofer/PycharmProjects/excel_to_TQA/newConfigTest1.json"
-response = new_excel_to_tqa.upload_excel_file(excel_file_path, config_file_path)
+response = excel_to_tqa.upload_excel_file(excel_file_path, config_file_path)
 print(response)
