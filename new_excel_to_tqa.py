@@ -52,14 +52,14 @@ def upload_excel_file(excel_file, config_file):
     # final_variable_list = check_for_variable_duplicates(variable_list)
     report_comment = get_report_comments(config_dict, excel_workbook)
     finalize = get_finalize_value(config_dict, excel_workbook)
-    # mode = get_mode(config_dict, excel_workbook)
+    mode = get_mode(config_dict, excel_workbook)
     # report_date = get_report_date(config_dict, excel_workbook, excel_file)
 
     print("Schedule id: ", sched_id)
     # print("Variables: ", final_variable_list)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
-    # print("Mode: ", mode)
+    print("Mode: ", mode)
     # print("Report Date: ", report_date)
     #
     # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
@@ -234,19 +234,15 @@ def get_finalize_value(config_dict, excel_workbook):
 
 def get_mode(config_dict, excel_workbook):
     # get the mode from the excel file or config file, if it is present
-    mode = None
+    mode = 'save_append'
 
     if "mode" in config_dict:  # mode is entered in config file
         mode = config_dict["mode"]
 
-    if mode is None:
-        for sheet in config_dict['sheets']:
-            excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
-            if 'mode' in sheet:  # mode is in excel file
-                mode = get_cell_value(sheet['mode']['modeCellRow'], sheet['mode']['modeCellColumn'], excel_sheet)[0]
-
-    if mode is None:  # if mode is not specified, default is 'save_append'
-        mode = 'save_append'
+    elif "mode" in config_dict['data'][0]:
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['mode']['sheetName'])
+        mode = get_cell_value(config_dict['data'][0]['mode']['modeCellRow'],
+                              config_dict['data'][0]['mode']['modeCellColumn'], excel_sheet)[0]
 
     if " " in mode.strip():  # replace any spaces with underscores (ex: 'save append' -> 'save_append')
         mode = mode.replace(" ", "_")
