@@ -29,7 +29,7 @@ def upload_excel_file(excel_file, config_file):
         variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), sched_id)[0]
 
         excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())
-        if "range" not in variable:  # variable only has one value
+        if 'range' not in variable:  # variable only has one value
             variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
         else:  # variable has multiple values
             variable_value = get_range_cell_values(variable, excel_sheet)  # python list of all variable values
@@ -95,10 +95,10 @@ def get_cell_value(row_int, column, excel_sheet):
 def get_range_cell_values(variable, excel_sheet):
     # find all the values associated with the specified variable
     variable_values = []
-    first_val, first_row, first_col = get_cell_value(variable["range"]["valueStartRow"],
-                                                     variable["range"]["valueStartColumn"], excel_sheet)
-    last_val, last_row, last_col = get_cell_value(variable["range"]["valueEndRow"],
-                                                  variable["range"]["valueEndColumn"], excel_sheet)
+    first_val, first_row, first_col = get_cell_value(variable['range']['valueStartRow'],
+                                                     variable['range']['valueStartColumn'], excel_sheet)
+    last_val, last_row, last_col = get_cell_value(variable['range']['valueEndRow'],
+                                                  variable['range']['valueEndColumn'], excel_sheet)
     for row_num in range(first_row, last_row + 1):
         for col_num in range(first_col, last_col + 1):
             value = get_cell_value(row_num, col_num + 1, excel_sheet)[0]
@@ -113,7 +113,7 @@ def get_schedule_id(config_dict, excel_workbook):
     # excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
     if 'machineName' in config_dict:  # machine name is in config file
         machine_name = config_dict['machineName'].strip()
-    elif 'machine' in config_dict["data"][0]:  # machine name is in excel file
+    elif 'machine' in config_dict['data'][0]:  # machine name is in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['machine']['sheetName'].strip())
         machine_name = get_cell_value(config_dict['data'][0]['machine']['machineCellRow'],
                                       config_dict['data'][0]['machine']['machineCellColumn'], excel_sheet)[0].strip()
@@ -121,7 +121,7 @@ def get_schedule_id(config_dict, excel_workbook):
 
     if 'scheduleName' in config_dict:  # schedule name is in config file
         schedule_name = config_dict['scheduleName'].strip()
-    elif 'schedule' in config_dict["data"][0]:  # schedule name is in excel file
+    elif 'schedule' in config_dict['data'][0]:  # schedule name is in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['schedule']['sheetName'].strip())
         schedule_name = get_cell_value(config_dict['data'][0]['schedule']['scheduleCellRow'],
                                        config_dict['data'][0]['schedule']['scheduleCellColumn'], excel_sheet)[0].strip()
@@ -151,7 +151,7 @@ def get_meta_item_values(sched_id, var_id, variable, excel_workbook):
                 meta_item_id = meta_item['id']
 
         excel_sheet = excel_workbook.sheet_by_name(var_meta_item['sheetName'].strip())
-        if "range" not in var_meta_item:  # meta item has only one value
+        if 'range' not in var_meta_item:  # meta item has only one value
             meta_item_value = get_cell_value(var_meta_item['valueCellRow'], var_meta_item['valueCellColumn'],
                                              excel_sheet)[0]
         else:  # meta item has multiple values
@@ -168,33 +168,33 @@ def check_for_variable_duplicates(variables_list):
     checked_variables_list = []  # final variable list with combined duplicate variables
     temp_dict = {}  # used to create new dictionary without any duplicate variables (will convert to list)
     for var_dict in variables_list:
-        if var_dict["id"] not in temp_dict:  # this variable is the first present in the list with specified id
-            temp_dict[var_dict["id"]] = var_dict
+        if var_dict['id'] not in temp_dict:  # this variable is the first present in the list with specified id
+            temp_dict[var_dict['id']] = var_dict
         else:  # this variable has already been present in the list, add it to the existing variable dictionary
             for key in var_dict:
-                if key == "value":  # add the value to the value list for specified variable
-                    if not isinstance(temp_dict[var_dict["id"]]["value"], list):
-                        temp_dict[var_dict["id"]]["value"] = [temp_dict[var_dict["id"]]["value"], var_dict["value"]]
+                if key == 'value':  # add the value to the value list for specified variable
+                    if not isinstance(temp_dict[var_dict['id']]['value'], list):
+                        temp_dict[var_dict['id']]['value'] = [temp_dict[var_dict['id']]['value'], var_dict['value']]
                     else:
-                        temp_dict[var_dict["id"]]["value"].append(var_dict["value"])
-                elif key == "comment":  # append any comments to the existing variable comments
-                    if "comment" in temp_dict[var_dict["id"]]:
-                        temp_dict[var_dict["id"]]["comment"] += ("; " + var_dict["comment"])
+                        temp_dict[var_dict['id']]['value'].append(var_dict['value'])
+                elif key == 'comment':  # append any comments to the existing variable comments
+                    if 'comment' in temp_dict[var_dict['id']]:
+                        temp_dict[var_dict['id']]['comment'] += ("; " + var_dict['comment'])
                     else:
-                        temp_dict[var_dict["id"]]["comment"] = var_dict["comment"]
-                elif key == "metaItems":  # check to see if meta item already exists
-                    for var_item in var_dict["metaItems"]:
+                        temp_dict[var_dict['id']]['comment'] = var_dict['comment']
+                elif key == 'metaItems':  # check to see if meta item already exists
+                    for var_item in var_dict['metaItems']:
                         new_meta_item = True
-                        for item in temp_dict[var_dict["id"]]["metaItems"]:
-                            if var_item["id"] == item["id"]:  # meta item already in metaItems
-                                if not isinstance(item["value"], list):  # create list with all meta item values
-                                    item["value"] = [item["value"], var_item["value"]]
+                        for item in temp_dict[var_dict['id']]['metaItems']:
+                            if var_item['id'] == item['id']:  # meta item already in metaItems
+                                if not isinstance(item['value'], list):  # create list with all meta item values
+                                    item['value'] = [item['value'], var_item['value']]
                                 else:
-                                    item["value"].append(var_item["value"])  # add meta item value to the value list
+                                    item['value'].append(var_item['value'])  # add meta item value to the value list
                                 new_meta_item = False
                                 break
                         if new_meta_item:  # add new meta item tto meta items list
-                            temp_dict[var_dict["id"]]["metaItems"].append(var_item)
+                            temp_dict[var_dict['id']]['metaItems'].append(var_item)
 
     for value in temp_dict.values():  # convert variables dictionary to variables list format
         checked_variables_list.append(value)
@@ -220,10 +220,10 @@ def get_finalize_value(config_dict, excel_workbook):
     # get the finalize value from the excel file or config file, if it is present
     finalize = 0
 
-    if "finalize" in config_dict:  # finalize value is entered in config file
-        finalize = config_dict["finalize"]
+    if 'finalize' in config_dict:  # finalize value is entered in config file
+        finalize = config_dict['finalize']
 
-    elif "finalize" in config_dict['data'][0]:
+    elif 'finalize' in config_dict['data'][0]:
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['finalize']['sheetName'].strip())
         finalize = int(get_cell_value(config_dict['data'][0]['finalize']['finalizeCellRow'],
                                       config_dict['data'][0]['finalize']['finalizeCellColumn'], excel_sheet)[0])
@@ -235,10 +235,10 @@ def get_mode(config_dict, excel_workbook):
     # get the mode from the excel file or config file, if it is present
     mode = 'save_append'
 
-    if "mode" in config_dict:  # mode is entered in config file
-        mode = config_dict["mode"]
+    if 'mode' in config_dict:  # mode is entered in config file
+        mode = config_dict['mode']
 
-    elif "mode" in config_dict['data'][0]:
+    elif 'mode' in config_dict['data'][0]:
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['mode']['sheetName'].strip())
         mode = get_cell_value(config_dict['data'][0]['mode']['modeCellRow'],
                               config_dict['data'][0]['mode']['modeCellColumn'], excel_sheet)[0]
@@ -257,11 +257,11 @@ def get_report_date(config_dict, excel_workbook, excel_file):
 
     report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))
 
-    if "date" in config_dict:  # report date is entered in config file
-        date = config_dict["date"]
+    if 'date' in config_dict:  # report date is entered in config file
+        date = config_dict['date']
         report_date = parser.parse(date)
 
-    elif "date" in config_dict['data'][0]:
+    elif 'date' in config_dict['data'][0]:
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['date']['sheetName'].strip())
         date = get_cell_value(config_dict['data'][0]['date']['dateCellRow'],
                               config_dict['data'][0]['date']['dateCellColumn'], excel_sheet)[0]
