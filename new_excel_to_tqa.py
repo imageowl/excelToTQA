@@ -15,7 +15,7 @@ def upload_excel_file(excel_file, config_file):
     # get the data from the excel file and upload it to Smari
 
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
-    config_sheets_dict = config_dict['data']  # dictionary object of the excel sheets
+    config_data_dict = config_dict['data'][0]  # dictionary object of the excel sheets data
     excel_workbook = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
@@ -50,14 +50,14 @@ def upload_excel_file(excel_file, config_file):
     #
     # # get all the inputs needed for tqa.upload_test_results
     # final_variable_list = check_for_variable_duplicates(variable_list)
-    # report_comment = get_report_comments(config_dict, excel_workbook)
+    report_comment = get_report_comments(config_dict, excel_workbook)
     # finalize = get_finalize_value(config_dict, excel_workbook)
     # mode = get_mode(config_dict, excel_workbook)
     # report_date = get_report_date(config_dict, excel_workbook, excel_file)
 
     print("Schedule id: ", sched_id)
     # print("Variables: ", final_variable_list)
-    # print("Report Comment: ", report_comment)
+    print("Report Comment: ", report_comment)
     # print("Finalize: ", finalize)
     # print("Mode: ", mode)
     # print("Report Date: ", report_date)
@@ -205,18 +205,14 @@ def check_for_variable_duplicates(variables_list):
 
 def get_report_comments(config_dict, excel_workbook):
     # get the report comments from the excel file or config file, if there are any
-    report_comment = ''
 
-    if "reportComment" in config_dict:  # report level comment is entered in config file
-        report_comment = config_dict["reportComment"]
-
-    if report_comment == '':
-        for sheet in config_dict['sheets']:
-            excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
-            if 'reportComment' in sheet:  # report comment is in excel file
-                report_comment = get_cell_value(sheet['reportComment']['reportCommentCellRow'],
-                                                sheet['reportComment']['reportCommentCellColumn'], excel_sheet)[0]
-
+    if 'reportComment' in config_dict:  # report level comment is entered in config file
+        report_comment = config_dict['reportComment']
+    elif 'reportComment' in config_dict['data'][0]:
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['reportComment']['sheetName'])
+        report_comment = get_cell_value(config_dict['data'][0]['reportComment']['reportCommentCellRow'],
+                                        config_dict['data'][0]['reportComment']['reportCommentCellColumn'],
+                                        excel_sheet)[0]
     return report_comment
 
 
