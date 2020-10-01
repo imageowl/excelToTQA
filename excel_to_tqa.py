@@ -15,7 +15,7 @@ def upload_excel_file(excel_file, config_file):
     # get the data from the excel file and upload it to Smari
 
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
-    config_data_dict = config_dict['data'][0]  # dictionary object of the excel sheets data
+    config_data_dict = config_dict['data'][0]  # dictionary object of the report data
     excel_workbook = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
@@ -49,9 +49,23 @@ def upload_excel_file(excel_file, config_file):
 
     # get all the inputs needed for tqa.upload_test_results
     final_variable_list = check_for_variable_duplicates(variable_list)
-    report_comment = get_report_comments(config_dict, excel_workbook)
-    finalize = get_finalize_value(config_dict, excel_workbook)
-    mode = get_mode(config_dict, excel_workbook)
+    # report_comment = get_report_comments(config_dict, excel_workbook)
+    # finalize = get_finalize_value(config_dict, excel_workbook)
+    # mode = get_mode(config_dict, excel_workbook)
+    # report_date = get_report_date(config_dict, excel_workbook, excel_file)
+
+    report_comment = get_header_value(config_dict, excel_workbook, 'reportComment')
+    if report_comment is None:
+        report_comment = ""
+
+    finalize = int(get_header_value(config_dict, excel_workbook, 'finalize'))
+    if finalize is None:
+        finalize = 0
+
+    mode = get_header_value(config_dict, excel_workbook, 'mode')
+    if mode is None:
+        mode = 'save_append'
+
     report_date = get_report_date(config_dict, excel_workbook, excel_file)
 
     print("Schedule id: ", sched_id)
@@ -110,21 +124,20 @@ def get_range_cell_values(variable, excel_sheet):
 def get_schedule_id(config_dict, excel_workbook):
     # get the schedule id using the schedule name and machine id
 
-    # excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
     if 'machineName' in config_dict:  # machine name is in config file
         machine_name = config_dict['machineName'].strip()
     elif 'machine' in config_dict['data'][0]:  # machine name is in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['machine']['sheetName'].strip())
-        machine_name = get_cell_value(config_dict['data'][0]['machine']['machineCellRow'],
-                                      config_dict['data'][0]['machine']['machineCellColumn'], excel_sheet)[0].strip()
+        machine_name = get_cell_value(config_dict['data'][0]['machine']['cellRow'],
+                                      config_dict['data'][0]['machine']['cellColumn'], excel_sheet)[0].strip()
     machine_id = tqa.get_machine_id_from_str(machine_name)
 
     if 'scheduleName' in config_dict:  # schedule name is in config file
         schedule_name = config_dict['scheduleName'].strip()
     elif 'schedule' in config_dict['data'][0]:  # schedule name is in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['schedule']['sheetName'].strip())
-        schedule_name = get_cell_value(config_dict['data'][0]['schedule']['scheduleCellRow'],
-                                       config_dict['data'][0]['schedule']['scheduleCellColumn'], excel_sheet)[0].strip()
+        schedule_name = get_cell_value(config_dict['data'][0]['schedule']['cellRow'],
+                                       config_dict['data'][0]['schedule']['cellColumn'], excel_sheet)[0].strip()
 
     schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
 
@@ -193,7 +206,7 @@ def check_for_variable_duplicates(variables_list):
                                     item['value'].append(var_item['value'])  # add meta item value to the value list
                                 new_meta_item = False
                                 break
-                        if new_meta_item:  # add new meta item tto meta items list
+                        if new_meta_item:  # add new meta item to meta items list
                             temp_dict[var_dict['id']]['metaItems'].append(var_item)
 
     for value in temp_dict.values():  # convert variables dictionary to variables list format
@@ -202,13 +215,27 @@ def check_for_variable_duplicates(variables_list):
     return checked_variables_list
 
 
+def get_header_value(config_dict, excel_workbook, header_name):
+    value = None
+
+    if header_name in config_dict:  # report level comment is entered in config file
+        value = config_dict[header_name]
+    elif header_name in config_dict['data'][0]:  # report level comment is entered in excel file
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0][header_name]['sheetName'].strip())
+        value = get_cell_value(config_dict['data'][0][header_name]['cellRow'],
+                                        config_dict['data'][0][header_name]['cellColumn'],
+                                        excel_sheet)[0]
+
+    return value
+
+
 def get_report_comments(config_dict, excel_workbook):
     # get the report comments from the excel file or config file, if there are any
     report_comment = ''
 
     if 'reportComment' in config_dict:  # report level comment is entered in config file
         report_comment = config_dict['reportComment']
-    elif 'reportComment' in config_dict['data'][0]:
+    elif 'reportComment' in config_dict['data'][0]:  # report level comment is entered in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['reportComment']['sheetName'].strip())
         report_comment = get_cell_value(config_dict['data'][0]['reportComment']['reportCommentCellRow'],
                                         config_dict['data'][0]['reportComment']['reportCommentCellColumn'],
@@ -223,7 +250,7 @@ def get_finalize_value(config_dict, excel_workbook):
     if 'finalize' in config_dict:  # finalize value is entered in config file
         finalize = config_dict['finalize']
 
-    elif 'finalize' in config_dict['data'][0]:
+    elif 'finalize' in config_dict['data'][0]:  # finalize value is entered in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['finalize']['sheetName'].strip())
         finalize = int(get_cell_value(config_dict['data'][0]['finalize']['finalizeCellRow'],
                                       config_dict['data'][0]['finalize']['finalizeCellColumn'], excel_sheet)[0])
@@ -238,7 +265,7 @@ def get_mode(config_dict, excel_workbook):
     if 'mode' in config_dict:  # mode is entered in config file
         mode = config_dict['mode']
 
-    elif 'mode' in config_dict['data'][0]:
+    elif 'mode' in config_dict['data'][0]:  # mode is entered in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['mode']['sheetName'].strip())
         mode = get_cell_value(config_dict['data'][0]['mode']['modeCellRow'],
                               config_dict['data'][0]['mode']['modeCellColumn'], excel_sheet)[0]
@@ -255,13 +282,13 @@ def get_report_date(config_dict, excel_workbook, excel_file):
     #   or use the date present in the excel file
     #   or if there is no date in the config or excel file, use the date the excel file was last modified
 
-    report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))
+    report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date the excel file was last modified
 
     if 'date' in config_dict:  # report date is entered in config file
         date = config_dict['date']
         report_date = parser.parse(date)
 
-    elif 'date' in config_dict['data'][0]:
+    elif 'date' in config_dict['data'][0]:  # report date is entered in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['date']['sheetName'].strip())
         date = get_cell_value(config_dict['data'][0]['date']['dateCellRow'],
                               config_dict['data'][0]['date']['dateCellColumn'], excel_sheet)[0]
