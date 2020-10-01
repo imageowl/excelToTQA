@@ -26,9 +26,9 @@ def upload_excel_file(excel_file, config_file):
         raise ValueError("Error: The schedule id could not be found.", error_msg)
 
     for variable in config_data_dict['variables']:
-        variable_id = tqa.get_variable_id_from_string(variable['name'], sched_id)[0]
+        variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), sched_id)[0]
 
-        excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())
         if "range" not in variable:  # variable only has one value
             variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
         else:  # variable has multiple values
@@ -42,7 +42,7 @@ def upload_excel_file(excel_file, config_file):
             variable_list[-1]['metaItems'] = meta_items
 
         if 'comment' in variable:
-            excel_sheet = excel_workbook.sheet_by_name(variable['comment']['sheetName'])
+            excel_sheet = excel_workbook.sheet_by_name(variable['comment']['sheetName'].strip())
             variable_comment = get_cell_value(variable['comment']['varCommentCellRow'],
                                               variable['comment']['varCommentCellColumn'], excel_sheet)[0]
             variable_list[-1]['comment'] = variable_comment
@@ -61,8 +61,9 @@ def upload_excel_file(excel_file, config_file):
     print("Mode: ", mode)
     print("Report Date: ", report_date)
 
-    response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
-                                       finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
+    # response = tqa.upload_test_results(schedule_id=sched_id, variable_data=final_variable_list, comment=report_comment,
+    #                                    finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
+    response = 0
     return response
 
 
@@ -108,13 +109,12 @@ def get_range_cell_values(variable, excel_sheet):
 
 def get_schedule_id(config_dict, excel_workbook):
     # get the schedule id using the schedule name and machine id
-    schedule_id = None
 
     # excel_sheet = excel_workbook.sheet_by_name(config_sheet['sheetName'])
     if 'machineName' in config_dict:  # machine name is in config file
         machine_name = config_dict['machineName'].strip()
     elif 'machine' in config_dict["data"][0]:  # machine name is in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['machine']['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['machine']['sheetName'].strip())
         machine_name = get_cell_value(config_dict['data'][0]['machine']['machineCellRow'],
                                       config_dict['data'][0]['machine']['machineCellColumn'], excel_sheet)[0].strip()
     machine_id = tqa.get_machine_id_from_str(machine_name)
@@ -122,7 +122,7 @@ def get_schedule_id(config_dict, excel_workbook):
     if 'scheduleName' in config_dict:  # schedule name is in config file
         schedule_name = config_dict['scheduleName'].strip()
     elif 'schedule' in config_dict["data"][0]:  # schedule name is in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['schedule']['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['schedule']['sheetName'].strip())
         schedule_name = get_cell_value(config_dict['data'][0]['schedule']['scheduleCellRow'],
                                        config_dict['data'][0]['schedule']['scheduleCellColumn'], excel_sheet)[0].strip()
 
@@ -146,11 +146,11 @@ def get_meta_item_values(sched_id, var_id, variable, excel_workbook):
             all_var_meta_items = sched_var['metaItems']
     for var_meta_item in variable['metaItems']:
         for meta_item in all_var_meta_items:
-            if meta_item['name'] == var_meta_item['name']:
+            if meta_item['name'] == var_meta_item['name'].strip():
                 # meta item present in config file
                 meta_item_id = meta_item['id']
 
-        excel_sheet = excel_workbook.sheet_by_name(var_meta_item['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(var_meta_item['sheetName'].strip())
         if "range" not in var_meta_item:  # meta item has only one value
             meta_item_value = get_cell_value(var_meta_item['valueCellRow'], var_meta_item['valueCellColumn'],
                                              excel_sheet)[0]
@@ -209,7 +209,7 @@ def get_report_comments(config_dict, excel_workbook):
     if 'reportComment' in config_dict:  # report level comment is entered in config file
         report_comment = config_dict['reportComment']
     elif 'reportComment' in config_dict['data'][0]:
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['reportComment']['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['reportComment']['sheetName'].strip())
         report_comment = get_cell_value(config_dict['data'][0]['reportComment']['reportCommentCellRow'],
                                         config_dict['data'][0]['reportComment']['reportCommentCellColumn'],
                                         excel_sheet)[0]
@@ -224,7 +224,7 @@ def get_finalize_value(config_dict, excel_workbook):
         finalize = config_dict["finalize"]
 
     elif "finalize" in config_dict['data'][0]:
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['finalize']['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['finalize']['sheetName'].strip())
         finalize = int(get_cell_value(config_dict['data'][0]['finalize']['finalizeCellRow'],
                                       config_dict['data'][0]['finalize']['finalizeCellColumn'], excel_sheet)[0])
 
@@ -239,7 +239,7 @@ def get_mode(config_dict, excel_workbook):
         mode = config_dict["mode"]
 
     elif "mode" in config_dict['data'][0]:
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['mode']['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['mode']['sheetName'].strip())
         mode = get_cell_value(config_dict['data'][0]['mode']['modeCellRow'],
                               config_dict['data'][0]['mode']['modeCellColumn'], excel_sheet)[0]
 
@@ -262,7 +262,7 @@ def get_report_date(config_dict, excel_workbook, excel_file):
         report_date = parser.parse(date)
 
     elif "date" in config_dict['data'][0]:
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['date']['sheetName'])
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['date']['sheetName'].strip())
         date = get_cell_value(config_dict['data'][0]['date']['dateCellRow'],
                               config_dict['data'][0]['date']['dateCellColumn'], excel_sheet)[0]
         report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
