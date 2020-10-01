@@ -19,14 +19,17 @@ def upload_excel_file(excel_file, config_file):
     excel_workbook = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
-    sched_id = get_schedule_id(config_dict, excel_workbook)  # determine the id of the schedule
-    if sched_id is None:
+    machine_name = get_header_value(config_dict, excel_workbook, 'machine')
+    machine_id = tqa.get_machine_id_from_str(machine_name)
+    schedule_name = get_header_value(config_dict, excel_workbook, 'schedule')
+    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
+    if schedule_id is None:
         error_msg = "The schedule name and machine name must be in the config file, or their locations in the excel " \
                     "file must be in the config file."
         raise ValueError("Error: The schedule id could not be found.", error_msg)
 
     for variable in config_data_dict['variables']:
-        variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), sched_id)[0]
+        variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), schedule_id)[0]
 
         excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())
         if 'range' not in variable:  # variable only has one value
@@ -37,7 +40,7 @@ def upload_excel_file(excel_file, config_file):
         variable_list.append({'id': variable_id, 'value': variable_value})
 
         if 'metaItems' in variable:
-            meta_items = get_meta_item_values(sched_id, variable_id, variable, excel_workbook)
+            meta_items = get_meta_item_values(schedule_id, variable_id, variable, excel_workbook)
 
             variable_list[-1]['metaItems'] = meta_items
 
@@ -77,7 +80,7 @@ def upload_excel_file(excel_file, config_file):
         report_date = parser.parse(date)
     report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
 
-    print("Schedule id: ", sched_id)
+    print("Schedule id: ", schedule_id)
     print("Variables: ", final_variable_list)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
@@ -128,29 +131,6 @@ def get_range_cell_values(variable, excel_sheet):
             variable_values.append(value)
 
     return variable_values
-
-
-def get_schedule_id(config_dict, excel_workbook):
-    # get the schedule id using the schedule name and machine id
-
-    if 'machineName' in config_dict:  # machine name is in config file
-        machine_name = config_dict['machineName'].strip()
-    elif 'machine' in config_dict['data'][0]:  # machine name is in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['machine']['sheetName'].strip())
-        machine_name = get_cell_value(config_dict['data'][0]['machine']['cellRow'],
-                                      config_dict['data'][0]['machine']['cellColumn'], excel_sheet)[0].strip()
-    machine_id = tqa.get_machine_id_from_str(machine_name)
-
-    if 'scheduleName' in config_dict:  # schedule name is in config file
-        schedule_name = config_dict['scheduleName'].strip()
-    elif 'schedule' in config_dict['data'][0]:  # schedule name is in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['schedule']['sheetName'].strip())
-        schedule_name = get_cell_value(config_dict['data'][0]['schedule']['cellRow'],
-                                       config_dict['data'][0]['schedule']['cellColumn'], excel_sheet)[0].strip()
-
-    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
-
-    return schedule_id
 
 
 def get_meta_item_values(sched_id, var_id, variable, excel_workbook):
@@ -227,35 +207,12 @@ def check_for_variable_duplicates(variables_list):
 def get_header_value(config_dict, excel_workbook, header_name):
     value = None
 
-    if header_name in config_dict:  # report level comment is entered in config file
+    if header_name in config_dict:  # header value is entered in config file
         value = config_dict[header_name]
-    elif header_name in config_dict['data'][0]:  # report level comment is entered in excel file
+    elif header_name in config_dict['data'][0]:  # header value is entered in excel file
         excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0][header_name]['sheetName'].strip())
         value = get_cell_value(config_dict['data'][0][header_name]['cellRow'],
-                                        config_dict['data'][0][header_name]['cellColumn'],
-                                        excel_sheet)[0]
+                               config_dict['data'][0][header_name]['cellColumn'], excel_sheet)[0]
 
     return value
 
-
-def get_report_date(config_dict, excel_workbook, excel_file):
-    # to get the report date:
-    #   use the date entered in the config file
-    #   or use the date present in the excel file
-    #   or if there is no date in the config or excel file, use the date the excel file was last modified
-
-    report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # date the excel file was last modified
-
-    if 'date' in config_dict:  # report date is entered in config file
-        date = config_dict['date']
-        report_date = parser.parse(date)
-
-    elif 'date' in config_dict['data'][0]:  # report date is entered in excel file
-        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['date']['sheetName'].strip())
-        date = get_cell_value(config_dict['data'][0]['date']['dateCellRow'],
-                              config_dict['data'][0]['date']['dateCellColumn'], excel_sheet)[0]
-        report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
-
-    report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
-
-    return report_date
