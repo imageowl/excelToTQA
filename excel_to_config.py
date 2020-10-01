@@ -31,11 +31,13 @@ def excel_to_config_file(excel_file):
         while cell_is_empty is False:  # add all variables to config_dict
             variable_name = sheet.cell_value(row_idx, variables_table_col).strip()
             if len(variable_name) != 0:
-                variable_row = int(sheet.cell_value(row_idx, variables_table_col+1))
-                variable_col = sheet.cell_value(row_idx, variables_table_col+2)
-                config_dict["sheets"][-1]["sheetVariables"].append({"name": variable_name.strip(),
-                                                                    "valueCellRow": variable_row,
-                                                                    "valueCellColumn": variable_col})
+                variable_row = int(sheet.cell_value(row_idx, variables_table_col + 1))
+                variable_col = sheet.cell_value(row_idx, variables_table_col + 2)
+                variable_sheet = sheet.cell_value(row_idx, variables_table_col + 3)
+                sheet_index = find_sheet(variable_sheet, config_dict)
+                config_dict["sheets"][sheet_index]["sheetVariables"].append({"name": variable_name.strip(),
+                                                                             "valueCellRow": variable_row,
+                                                                             "valueCellColumn": variable_col})
                 if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has meta items
                     # add all meta items to config_dict
                     find_meta_item(config_dict, sheet, variable_name)
@@ -106,8 +108,10 @@ def find_schedule(sheet, config_dict):
             row, col = schedule_cell
             schedule_row = int(sheet.cell_value(row, col + 1))
             schedule_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["schedule"] = {"scheduleCellRow": schedule_row,
-                                                     "scheduleCellColumn": schedule_col}
+            schedule_sheet = sheet.cell_value(row, col + 3)
+            sheet_index = find_sheet(schedule_sheet, config_dict)
+            config_dict["sheets"][sheet_index]["schedule"] = {"scheduleCellRow": schedule_row,
+                                                              "scheduleCellColumn": schedule_col}
 
 
 def find_finalize(sheet, config_dict):
@@ -126,8 +130,10 @@ def find_finalize(sheet, config_dict):
             row, col = finalize_cell
             finalize_row = int(sheet.cell_value(row, col + 1))
             finalize_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["finalize"] = {"finalizeCellRow": finalize_row,
-                                                     "finalizeCellColumn": finalize_col}
+            finalize_sheet = sheet.cell_value(row, col + 3)
+            sheet_index = find_sheet(finalize_sheet, config_dict)
+            config_dict["sheets"][sheet_index]["finalize"] = {"finalizeCellRow": finalize_row,
+                                                              "finalizeCellColumn": finalize_col}
 
 
 def find_mode(sheet, config_dict):
@@ -146,7 +152,9 @@ def find_mode(sheet, config_dict):
             row, col = mode_cell
             mode_row = int(sheet.cell_value(row, col + 1))
             mode_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
+            mode_sheet = sheet.cell_value(row, col + 3)
+            sheet_index = find_sheet(mode_sheet, config_dict)
+            config_dict["sheets"][sheet_index]["mode"] = {"modeCellRow": mode_row, "modeCellColumn": mode_col}
 
 
 def find_date(sheet, config_dict, excel_workbook):
@@ -166,7 +174,9 @@ def find_date(sheet, config_dict, excel_workbook):
             row, col = date_cell
             date_row = int(sheet.cell_value(row, col + 1))
             date_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
+            date_sheet = sheet.cell_value(row, col + 3)
+            sheet_index = find_sheet(date_sheet, config_dict)
+            config_dict["sheets"][sheet_index]["date"] = {"dateCellRow": date_row, "dateCellColumn": date_col}
 
 
 def find_report_comment(sheet, config_dict):
@@ -185,8 +195,10 @@ def find_report_comment(sheet, config_dict):
             row, col = report_comment_cell
             report_comment_row = int(sheet.cell_value(row, col + 1))
             report_comment_col = sheet.cell_value(row, col + 2)
-            config_dict["sheets"][-1]["reportComment"] = {"reportCommentCellRow": report_comment_row,
-                                                          "reportCommentCellColumn": report_comment_col}
+            report_comment_sheet = sheet.cell_value(row, col + 3)
+            sheet_index = find_sheet(report_comment_sheet, config_dict)
+            config_dict["sheets"][sheet_index]["reportComment"] = {"reportCommentCellRow": report_comment_row,
+                                                                   "reportCommentCellColumn": report_comment_col}
 
 
 def find_meta_item(config_dict, sheet, variable_name):
@@ -199,9 +211,11 @@ def find_meta_item(config_dict, sheet, variable_name):
             meta_item_var_name = sheet.cell_value(row_num, meta_items_table_col + 1).strip()
             meta_items_row = int(sheet.cell_value(row_num, meta_items_table_col + 2))
             meta_items_col = sheet.cell_value(row_num, meta_items_table_col + 3)
-            config_dict["sheets"][-1]["sheetVariables"][-1]["metaItems"].append({"name": meta_item_var_name,
-                                                                                 "valueCellRow": meta_items_row,
-                                                                                 "valueColumn": meta_items_col})
+            meta_items_sheet = sheet.cell_value(row_num, meta_items_table_col + 4)
+            sheet_index = find_sheet(meta_items_sheet, config_dict)
+            config_dict["sheets"][sheet_index]["sheetVariables"][-1]["metaItems"].append({"name": meta_item_var_name,
+                                                                                          "valueCellRow": meta_items_row,
+                                                                                          "valueColumn": meta_items_col})
 
 
 def find_variable_comment(config_dict, sheet, variable_name):
@@ -212,8 +226,10 @@ def find_variable_comment(config_dict, sheet, variable_name):
         if found_var == variable_name:
             comment_row = int(sheet.cell_value(row_num, comments_table_col + 1))
             comment_col = sheet.cell_value(row_num, comments_table_col + 2)
-    config_dict["sheets"][-1]["sheetVariables"][-1]["comment"] = {"varCommentCellRow": comment_row,
-                                                                  "varCommentCellColumn": comment_col}
+            comment_sheet = sheet.cell_value(row_num, comments_table_col + 3)
+            sheet_index = find_sheet(comment_sheet, config_dict)
+    config_dict["sheets"][sheet_index]["sheetVariables"][-1]["comment"] = {"varCommentCellRow": comment_row,
+                                                                           "varCommentCellColumn": comment_col}
 
 
 def write_to_json_file(config_dict):
