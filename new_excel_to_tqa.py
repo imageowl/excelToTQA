@@ -51,14 +51,14 @@ def upload_excel_file(excel_file, config_file):
     # # get all the inputs needed for tqa.upload_test_results
     # final_variable_list = check_for_variable_duplicates(variable_list)
     report_comment = get_report_comments(config_dict, excel_workbook)
-    # finalize = get_finalize_value(config_dict, excel_workbook)
+    finalize = get_finalize_value(config_dict, excel_workbook)
     # mode = get_mode(config_dict, excel_workbook)
     # report_date = get_report_date(config_dict, excel_workbook, excel_file)
 
     print("Schedule id: ", sched_id)
     # print("Variables: ", final_variable_list)
     print("Report Comment: ", report_comment)
-    # print("Finalize: ", finalize)
+    print("Finalize: ", finalize)
     # print("Mode: ", mode)
     # print("Report Date: ", report_date)
     #
@@ -205,6 +205,7 @@ def check_for_variable_duplicates(variables_list):
 
 def get_report_comments(config_dict, excel_workbook):
     # get the report comments from the excel file or config file, if there are any
+    report_comment = ''
 
     if 'reportComment' in config_dict:  # report level comment is entered in config file
         report_comment = config_dict['reportComment']
@@ -218,20 +219,15 @@ def get_report_comments(config_dict, excel_workbook):
 
 def get_finalize_value(config_dict, excel_workbook):
     # get the finalize value from the excel file or config file, if it is present
-    finalize = None
+    finalize = 0
 
     if "finalize" in config_dict:  # finalize value is entered in config file
         finalize = config_dict["finalize"]
 
-    if finalize is None:
-        for sheet in config_dict['sheets']:
-            excel_sheet = excel_workbook.sheet_by_name(sheet['sheetName'])
-            if 'finalize' in sheet:  # finalize value is in excel file
-                finalize = int(get_cell_value(sheet['finalize']['finalizeCellRow'],
-                                              sheet['finalize']['finalizeCellColumn'], excel_sheet)[0])
-
-    if finalize is None:  # if finalize is not specified, default is zero
-        finalize = 0
+    elif "finalize" in config_dict['data'][0]:
+        excel_sheet = excel_workbook.sheet_by_name(config_dict['data'][0]['finalize']['sheetName'])
+        finalize = int(get_cell_value(config_dict['data'][0]['finalize']['finalizeCellRow'],
+                                      config_dict['data'][0]['finalize']['finalizeCellColumn'], excel_sheet)[0])
 
     return finalize
 
