@@ -1,0 +1,97 @@
+{
+  "finalize": 0,
+  "mode": "save_append",
+  "machineName": "machine",
+  "scheduleName": "schedule",
+  "date": "0000-00-00 00:00",
+  "reportComment": "comment",
+  "data": [
+    {
+      "finalize": {
+        "finalizeCellRow": 1,
+        "finalizeCellColumn": "E",
+        "sheetName": "Sheet 1"
+      },
+      "mode": {
+        "modeCellRow": 1,
+        "modeCellColumn": "F",
+        "sheetName": "Sheet 1"
+      },
+      "machine": {
+        "machineCellRow": 1,
+        "machineCellColumn": "A",
+        "sheetName": "Sheet 1"
+      },
+      "schedule": {
+        "scheduleCellRow": 1,
+        "scheduleCellColumn": "B",
+        "sheetName": "Sheet 1"
+      },
+      "date": {
+        "dateCellRow": 1,
+        "dateCellColumn": "C",
+        "sheetName": "Sheet 1"
+      },
+      "reportComment": {
+        "reportCommentCellRow": 1,
+        "reportCommentCellColumn": "D",
+        "sheetName": "Sheet 1"
+      },
+      "variables": [
+        {
+          "name": "Variable A",
+          "range": {
+            "valueStartRow": 2,
+            "valueStartColumn": "B",
+            "valueEndRow": 2,
+            "valueEndColumn": "C"
+          },
+        "sheetName": "Sheet 1"
+        },
+        {
+          "name": "Variable B",
+          "valueCellRow": 3,
+          "valueCellColumn": "B",
+          "sheetName": "Sheet 1",
+          "metaItems": [
+            {
+              "name": "Variable B1",
+              "valueCellRow": 4,
+              "valueCellColumn": "B",
+              "sheetName": "Sheet 1"
+            }
+          ]
+        },
+        {
+          "name": "Variable C",
+          "valueCellRow": 2,
+          "valueCellColumn": "C",
+          "sheetName": "Sheet 1",
+          "comment": {
+            "varCommentCellRow": 2,
+            "varCommentCellColumn": "D",
+            "sheetName": "Sheet 1"
+          }
+        },
+        {
+          "name": "Variable D",
+          "valueCellRow": 3,
+          "valueCellColumn": "C",
+          "sheetName": "Sheet 1",
+          "metaItems": [
+            {
+              "name": "Variable D1",
+              "range": {
+                "valueStartRow": 3,
+                "valueStartColumn": "D",
+                "valueEndRow": 3,
+                "valueEndColumn": "F"
+              },
+              "sheetName": "Sheet 1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
