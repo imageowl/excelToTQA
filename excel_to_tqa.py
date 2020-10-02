@@ -15,15 +15,15 @@ def upload_excel_file(excel_file, config_file):
     # get the data from the excel file and upload it to Smari
 
     config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
-    config_data_dict = config_dict['data'][0]  # dictionary object of the report data
+    config_data_dict = config_dict['data'][0]
     excel_workbook = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
     # get the schedule id using the machine id and schedule name
-    machine_name = get_header_value(config_dict, excel_workbook, 'machine')  # get the machine name
-    machine_id = tqa.get_machine_id_from_str(machine_name)  # use the machine name to get the machine id
-    schedule_name = get_header_value(config_dict, excel_workbook, 'schedule')  # get the schedule name
-    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)  # get the schedule id
+    machine_name = get_header_value(config_dict, excel_workbook, 'machine')
+    machine_id = tqa.get_machine_id_from_str(machine_name)
+    schedule_name = get_header_value(config_dict, excel_workbook, 'schedule')
+    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
 
     if schedule_id is None:
         error_msg = "The schedule name and machine name must be in the config file, or their locations in the excel " \
@@ -32,7 +32,7 @@ def upload_excel_file(excel_file, config_file):
 
     for variable in config_data_dict['variables']:  # get all the variables and their data
         variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), schedule_id)[0]
-        excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())  # sheet the variable data is in
+        excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())
 
         if 'range' not in variable:  # variable only has one value
             variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
@@ -42,7 +42,7 @@ def upload_excel_file(excel_file, config_file):
         variable_list.append({'id': variable_id, 'value': variable_value})
 
         if 'metaItems' in variable:
-            # get all the variable meta items and their values in the excel sheet
+            # get all the variable meta items and their values
             meta_items = get_meta_item_values(schedule_id, variable_id, variable, excel_workbook)
             variable_list[-1]['metaItems'] = meta_items
 
@@ -105,7 +105,7 @@ def get_cell_value(row_int, column, excel_sheet):
     # convert column from letter to integer and find the value in the cell
     if isinstance(column, str):  # column input as letter
         # convert letter to its ascii value, then to the column index in the excel sheet
-        column = column.upper()  # make sure letter is uppercase
+        column = column.upper()
         if len(column) == 1:  # name of column is one letter
             col_int = abs(65 - ord(column))
         elif len(column) == 2:  # name of column is two letters
