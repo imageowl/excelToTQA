@@ -10,17 +10,12 @@ def excel_to_config_file(excel_file):
 
     sheet = excel_workbook.sheet_by_name('Config')
 
-    find_machine(sheet, config_dict)
-
-    find_schedule(sheet, config_dict)
-
-    find_finalize(sheet, config_dict)
-
-    find_mode(sheet, config_dict)
-
-    find_date(sheet, config_dict, excel_workbook)
-
-    find_report_comment(sheet, config_dict)
+    find_header_value(sheet, config_dict, "Machine Name", "machine")
+    find_header_value(sheet, config_dict, "Schedule Name", "schedule")
+    find_header_value(sheet, config_dict, "Finalize Value", "finalize")
+    find_header_value(sheet, config_dict, "Save Mode", "mode")
+    find_header_value(sheet, config_dict, "Report Date", "date", excel_workbook)
+    find_header_value(sheet, config_dict, "Report Comment", "reportComment")
 
     variables_table_cell = find_value_in_sheet(sheet, 'Variables Section')
     if variables_table_cell is not None:  # find table with variables in sheet
@@ -59,138 +54,32 @@ def find_value_in_sheet(sheet, val):
                 return row_num, col_num
 
 
-def find_sheet(sheet_name, config_dict):
-    for index, sheet in enumerate(config_dict["data"]):
-        if sheet["sheetName"] == sheet_name:
-            return index
+def find_header_value(sheet, config_dict, header_name, header_cell_name, excel_workbook=None):
+    name = ""
 
-    config_dict["data"].append({"sheetName": sheet_name})
-    return -1
+    name_header = find_value_in_sheet(sheet, header_name)
+    if name_header is not None:  # find header name in sheet
+        row, col = name_header
+        name = sheet.cell_value(row + 1, col)
+        if name != '':
+            if isinstance(name, str):  # machine, schedule, mode or report comment
+                config_dict[header_cell_name] = name.strip()
+            elif isinstance(name, float):
+                if name < 2:  # finalize
+                    config_dict[header_cell_name] = int(name)
+                else:  # report date
+                    report_date = xlrd.xldate_as_datetime(name, excel_workbook.datemode)
+                    config_dict[header_cell_name] = str(report_date)
 
-
-def find_machine(sheet, config_dict):
-    machine_name = ''
-
-    machine_name_header = find_value_in_sheet(sheet, 'Machine Name')
-    if machine_name_header is not None:  # find machine name in sheet
-        row, col = machine_name_header
-        machine_name = sheet.cell_value(row + 1, col)
-        if machine_name != '':
-            config_dict["machine"] = machine_name.strip()
-
-    if machine_name == '':
-        machine_cell = find_value_in_sheet(sheet, 'machine')
-        if machine_cell is not None:  # find machine name row and column in sheet
-            row, col = machine_cell
-            machine_row = int(sheet.cell_value(row, col + 1))
-            machine_col = sheet.cell_value(row, col + 2)
-            machine_sheet = sheet.cell_value(row, col + 3)
-            config_dict["data"][0]["machine"] = {"cellRow": machine_row, "cellColumn": machine_col,
-                                                 "sheetName": machine_sheet}
-
-
-def find_schedule(sheet, config_dict):
-    schedule_name = ''
-
-    schedule_name_header = find_value_in_sheet(sheet, 'Schedule Name')
-    if schedule_name_header is not None:  # find schedule name in sheet
-        row, col = schedule_name_header
-        schedule_name = sheet.cell_value(row + 1, col)
-        if schedule_name != '':
-            config_dict["schedule"] = schedule_name.strip()
-
-    if schedule_name == '':
-        schedule_cell = find_value_in_sheet(sheet, 'schedule')
-        if schedule_cell is not None:  # find schedule name row and column in sheet
-            row, col = schedule_cell
-            schedule_row = int(sheet.cell_value(row, col + 1))
-            schedule_col = sheet.cell_value(row, col + 2)
-            schedule_sheet = sheet.cell_value(row, col + 3)
-            config_dict["data"][0]["schedule"] = {"cellRow": schedule_row, "cellColumn": schedule_col,
-                                                  "sheetName": schedule_sheet}
-
-
-def find_finalize(sheet, config_dict):
-    finalize_val = ''
-
-    finalize_header = find_value_in_sheet(sheet, 'Finalize Value')
-    if finalize_header is not None:  # find finalize in sheet
-        row, col = finalize_header
-        finalize_val = sheet.cell_value(row + 1, col)
-        if finalize_val != '':
-            config_dict["finalize"] = int(finalize_val)
-
-    if finalize_val == '':
-        finalize_cell = find_value_in_sheet(sheet, 'finalize')
-        if finalize_cell is not None:  # find finalize value row and column in sheet
-            row, col = finalize_cell
-            finalize_row = int(sheet.cell_value(row, col + 1))
-            finalize_col = sheet.cell_value(row, col + 2)
-            finalize_sheet = sheet.cell_value(row, col + 3)
-            config_dict["data"][0]["finalize"] = {"cellRow": finalize_row, "cellColumn": finalize_col,
-                                                  "sheetName": finalize_sheet}
-
-
-def find_mode(sheet, config_dict):
-    mode_val = ''
-
-    mode_header = find_value_in_sheet(sheet, 'Save Mode')
-    if mode_header is not None:  # find mode in sheet
-        row, col = mode_header
-        mode_val = sheet.cell_value(row + 1, col)
-        if mode_val != '':
-            config_dict["mode"] = mode_val.strip()
-
-    if mode_val == '':
-        mode_cell = find_value_in_sheet(sheet, 'mode')
-        if mode_cell is not None:  # find mode value row and column in sheet
-            row, col = mode_cell
-            mode_row = int(sheet.cell_value(row, col + 1))
-            mode_col = sheet.cell_value(row, col + 2)
-            mode_sheet = sheet.cell_value(row, col + 3)
-            config_dict["data"][0]["mode"] = {"cellRow": mode_row, "cellColumn": mode_col, "sheetName": mode_sheet}
-
-
-def find_date(sheet, config_dict, excel_workbook):
-    report_date = ''
-
-    date_header = find_value_in_sheet(sheet, 'Report Date')
-    if date_header is not None:  # find date in sheet
-        row, col = date_header
-        date_val = sheet.cell_value(row + 1, col)
-        if date_val != '':
-            report_date = xlrd.xldate_as_datetime(date_val, excel_workbook.datemode)
-            config_dict["date"] = str(report_date)
-
-    if report_date == '':
-        date_cell = find_value_in_sheet(sheet, 'date')
-        if date_cell is not None:  # find date row and column in sheet
-            row, col = date_cell
-            date_row = int(sheet.cell_value(row, col + 1))
-            date_col = sheet.cell_value(row, col + 2)
-            date_sheet = sheet.cell_value(row, col + 3)
-            config_dict["data"][0]["date"] = {"cellRow": date_row, "cellColumn": date_col, "sheetName": date_sheet}
-
-
-def find_report_comment(sheet, config_dict):
-    report_comment_val = ''
-
-    report_comment_header = find_value_in_sheet(sheet, 'Report Comment')
-    if report_comment_header is not None:  # find report comment in sheet
-        row, col = report_comment_header
-        report_comment_val = sheet.cell_value(row + 1, col)
-        if report_comment_val != '':
-            config_dict["reportComment"] = report_comment_val.strip()
-
-    if report_comment_val == '':
-        report_comment_cell = find_value_in_sheet(sheet, 'comment')
-        if report_comment_cell is not None:  # find report level comment row and column in sheet
-            row, col = report_comment_cell
-            report_comment_row = int(sheet.cell_value(row, col + 1))
-            report_comment_col = sheet.cell_value(row, col + 2)
-            report_comment_sheet = sheet.cell_value(row, col + 3)
-            config_dict["data"][0]["reportComment"] = {"cellRow": report_comment_row, "cellColumn": report_comment_col,
-                                                       "sheetName": report_comment_sheet}
+    if name == '':
+        cell = find_value_in_sheet(sheet, header_cell_name)
+        if cell is not None:  # find machine name row and column in sheet
+            row, col = cell
+            value_row = int(sheet.cell_value(row, col + 1))
+            value_col = sheet.cell_value(row, col + 2)
+            value_sheet = sheet.cell_value(row, col + 3)
+            config_dict["data"][0][header_cell_name] = {"cellRow": value_row, "cellColumn": value_col,
+                                                        "sheetName": value_sheet}
 
 
 def find_meta_item(config_dict, sheet, variable_name):
