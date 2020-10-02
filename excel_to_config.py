@@ -36,9 +36,9 @@ def excel_to_config_file(excel_file):
                 variable_sheet = sheet.cell_value(row_idx, variables_table_col + 3)
                 config_dict["data"][0]["variables"].append({"name": variable_name.strip(), "valueCellRow": variable_row,
                                                             "valueCellColumn": variable_col, "sheetName": variable_sheet})
-    #             if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has meta items
-    #                 # add all meta items to config_dict
-    #                 find_meta_item(config_dict, sheet, variable_name)
+                if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has meta items
+                    # add all meta items to config_dict
+                    find_meta_item(config_dict, sheet, variable_name)
     #
     #             if sheet.cell_value(row_idx, variables_table_col+5).lower() == "yes":  # variable has a variable comment
     #                 find_variable_comment(config_dict, sheet, variable_name)
@@ -195,19 +195,26 @@ def find_report_comment(sheet, config_dict):
 
 def find_meta_item(config_dict, sheet, variable_name):
     # add all meta items to config_dict
-    config_dict["data"][-1]["variables"][-1]["metaItems"] = []
+    config_dict["data"][0]["variables"][-1]["metaItems"] = []
     meta_items_table_row, meta_items_table_col = find_value_in_sheet(sheet, 'Meta Items Section')
-    for row_num in range(meta_items_table_row, sheet.nrows):  # only look in meta items table
+    cell_is_empty = False
+    row_num = meta_items_table_row
+    while cell_is_empty is False:  # only look in meta items table
         found_var = sheet.cell_value(row_num, meta_items_table_col).strip()
-        if found_var == variable_name:
-            meta_item_var_name = sheet.cell_value(row_num, meta_items_table_col + 1).strip()
-            meta_items_row = int(sheet.cell_value(row_num, meta_items_table_col + 2))
-            meta_items_col = sheet.cell_value(row_num, meta_items_table_col + 3)
-            meta_items_sheet = sheet.cell_value(row_num, meta_items_table_col + 4)
-            sheet_index = find_sheet(meta_items_sheet, config_dict)
-            config_dict["data"][sheet_index]["variables"][-1]["metaItems"].append({"name": meta_item_var_name,
-                                                                                          "valueCellRow": meta_items_row,
-                                                                                          "valueColumn": meta_items_col})
+        if len(found_var) != 0:
+            if found_var == variable_name:
+                meta_item_var_name = sheet.cell_value(row_num, meta_items_table_col + 1).strip()
+                meta_items_row = int(sheet.cell_value(row_num, meta_items_table_col + 2))
+                meta_items_col = sheet.cell_value(row_num, meta_items_table_col + 3)
+                meta_items_sheet = sheet.cell_value(row_num, meta_items_table_col + 4)
+                config_dict["data"][0]["variables"][-1]["metaItems"].append({"name": meta_item_var_name,
+                                                                             "valueCellRow": meta_items_row,
+                                                                             "valueColumn": meta_items_col,
+                                                                             "sheetName": meta_items_sheet})
+        else:
+            cell_is_empty = True
+
+        row_num += 1
 
 
 def find_variable_comment(config_dict, sheet, variable_name):
