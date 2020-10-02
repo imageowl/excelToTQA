@@ -80,6 +80,9 @@ def upload_excel_file(excel_file, config_file):
     mode = get_header_value(config_dict, excel_workbook, 'mode')
     if mode is None:
         mode = 'save_append'  # default if mode is not specified
+    else:
+        if " " in mode.strip():  # replace any spaces with underscores (ex: 'save append' -> 'save_append')
+            mode = mode.replace(" ", "_")
 
     date = get_header_value(config_dict, excel_workbook, 'date')
     if date is None:
