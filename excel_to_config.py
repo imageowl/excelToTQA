@@ -39,9 +39,9 @@ def excel_to_config_file(excel_file):
                 if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has meta items
                     # add all meta items to config_dict
                     find_meta_item(config_dict, sheet, variable_name)
-    #
-    #             if sheet.cell_value(row_idx, variables_table_col+5).lower() == "yes":  # variable has a variable comment
-    #                 find_variable_comment(config_dict, sheet, variable_name)
+
+                if sheet.cell_value(row_idx, variables_table_col+5).lower() == "yes":  # variable has a variable comment
+                    find_variable_comment(config_dict, sheet, variable_name)
             else:
                 cell_is_empty = True  # no more variables present in this sheet
 
@@ -226,9 +226,9 @@ def find_variable_comment(config_dict, sheet, variable_name):
             comment_row = int(sheet.cell_value(row_num, comments_table_col + 1))
             comment_col = sheet.cell_value(row_num, comments_table_col + 2)
             comment_sheet = sheet.cell_value(row_num, comments_table_col + 3)
-            sheet_index = find_sheet(comment_sheet, config_dict)
-    config_dict["data"][sheet_index]["sheetVariables"][-1]["comment"] = {"varCommentCellRow": comment_row,
-                                                                           "varCommentCellColumn": comment_col}
+    config_dict["data"][0]["variables"][-1]["comment"] = {"varCommentCellRow": comment_row,
+                                                          "varCommentCellColumn": comment_col,
+                                                          "sheetName": comment_sheet}
 
 
 def write_to_json_file(config_dict):
