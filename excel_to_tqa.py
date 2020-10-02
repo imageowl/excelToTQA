@@ -21,14 +21,20 @@ def upload_excel_file(excel_file, config_file):
 
     # get the schedule id using the machine id and schedule name
     machine_name = get_header_value(config_dict, excel_workbook, 'machine')
-    machine_id = tqa.get_machine_id_from_str(machine_name)
-    schedule_name = get_header_value(config_dict, excel_workbook, 'schedule')
-    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
+    if machine_name is None:
+        raise ValueError("Error: The machine name could not be found.")
 
+    machine_id = tqa.get_machine_id_from_str(machine_name)
+    if machine_id is None:
+        raise ValueError("Error: The machine id could not be found.")
+
+    schedule_name = get_header_value(config_dict, excel_workbook, 'schedule')
+    if schedule_name is None:
+        raise ValueError("Error: The schedule name could not be found.")
+
+    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
     if schedule_id is None:
-        error_msg = "The schedule name and machine name must be in the config file, or their locations in the excel " \
-                    "file must be in the config file."
-        raise ValueError("Error: The schedule id could not be found.", error_msg)
+        raise ValueError("Error: The schedule id could not be found.")
 
     for variable in config_data_dict['variables']:  # get all the variables and their data
         variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), schedule_id)
