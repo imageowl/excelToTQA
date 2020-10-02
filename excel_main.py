@@ -7,14 +7,9 @@ import tqa
 import excel_to_tqa
 import excel_to_config
 
-import new_excel_to_config
-
-
-# excel_ex_file = "/Users/annafronhofer/Desktop/testFiles/Config Ex1.xlsx"
-# excel_to_config.excel_to_config_file(excel_ex_file)
 
 excel_ex_file = "/Users/annafronhofer/Desktop/testFiles/Config Ex1.xlsx"
-new_excel_to_config.excel_to_config_file(excel_ex_file)
+excel_to_config.excel_to_config_file(excel_ex_file)
 
 
 # tqa.load_json_credentials('SmariCredentials.json')
