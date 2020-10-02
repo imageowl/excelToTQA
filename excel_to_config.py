@@ -22,32 +22,30 @@ def excel_to_config_file(excel_file):
 
     find_report_comment(sheet, config_dict)
 
-    # variables_table_cell = find_value_in_sheet(sheet, 'Variables Section')
-    # if variables_table_cell is not None:  # find table with variables in sheet
-    #     config_dict["data"][-1]["variables"] = []
-    #     variables_table_row, variables_table_col = variables_table_cell
-    #     cell_is_empty = False
-    #     row_idx = variables_table_row+2
-    #     while cell_is_empty is False:  # add all variables to config_dict
-    #         variable_name = sheet.cell_value(row_idx, variables_table_col).strip()
-    #         if len(variable_name) != 0:
-    #             variable_row = int(sheet.cell_value(row_idx, variables_table_col + 1))
-    #             variable_col = sheet.cell_value(row_idx, variables_table_col + 2)
-    #             variable_sheet = sheet.cell_value(row_idx, variables_table_col + 3)
-    #             sheet_index = find_sheet(variable_sheet, config_dict)
-    #             config_dict["data"][sheet_index]["variables"].append({"name": variable_name.strip(),
-    #                                                                          "valueCellRow": variable_row,
-    #                                                                          "valueCellColumn": variable_col})
+    variables_table_cell = find_value_in_sheet(sheet, 'Variables Section')
+    if variables_table_cell is not None:  # find table with variables in sheet
+        config_dict["data"][0]["variables"] = []
+        variables_table_row, variables_table_col = variables_table_cell
+        cell_is_empty = False
+        row_idx = variables_table_row+2
+        while cell_is_empty is False:  # add all variables to config_dict
+            variable_name = sheet.cell_value(row_idx, variables_table_col).strip()
+            if len(variable_name) != 0:
+                variable_row = int(sheet.cell_value(row_idx, variables_table_col + 1))
+                variable_col = sheet.cell_value(row_idx, variables_table_col + 2)
+                variable_sheet = sheet.cell_value(row_idx, variables_table_col + 3)
+                config_dict["data"][0]["variables"].append({"name": variable_name.strip(), "valueCellRow": variable_row,
+                                                            "valueCellColumn": variable_col, "sheetName": variable_sheet})
     #             if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has meta items
     #                 # add all meta items to config_dict
     #                 find_meta_item(config_dict, sheet, variable_name)
     #
     #             if sheet.cell_value(row_idx, variables_table_col+5).lower() == "yes":  # variable has a variable comment
     #                 find_variable_comment(config_dict, sheet, variable_name)
-    #         else:
-    #             cell_is_empty = True  # no more variables present in this sheet
-    #
-    #         row_idx += 1  # check next row for variable
+            else:
+                cell_is_empty = True  # no more variables present in this sheet
+
+            row_idx += 1  # check next row for variable
 
     json_print(config_dict)
     # write_to_json_file(config_dict)
