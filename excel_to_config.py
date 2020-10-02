@@ -8,7 +8,7 @@ def excel_to_config_file(excel_file):
     config_dict = {"data": [{}]}  # dictionary that will be used to create json config file
     excel_workbook = xlrd.open_workbook(excel_file)
 
-    sheet = excel_workbook.sheet_by_name('Config')
+    sheet = excel_workbook.sheet_by_name("Config")
 
     find_header_value(sheet, config_dict, "Machine Name", "machine")
     find_header_value(sheet, config_dict, "Schedule Name", "schedule")
@@ -17,7 +17,7 @@ def excel_to_config_file(excel_file):
     find_header_value(sheet, config_dict, "Report Date", "date", excel_workbook)
     find_header_value(sheet, config_dict, "Report Comment", "reportComment")
 
-    variables_table_cell = find_value_in_sheet(sheet, 'Variables Section')
+    variables_table_cell = find_value_in_sheet(sheet, "Variables Section")
     if variables_table_cell is not None:  # find table with variables in sheet
         config_dict["data"][0]["variables"] = []
         variables_table_row, variables_table_col = variables_table_cell
@@ -26,17 +26,17 @@ def excel_to_config_file(excel_file):
         while cell_is_empty is False:  # add all variables to config_dict
             variable_name = sheet.cell_value(row_idx, variables_table_col).strip()
             if len(variable_name) != 0:
-                variable_row = int(sheet.cell_value(row_idx, variables_table_col + 1))
-                variable_col = sheet.cell_value(row_idx, variables_table_col + 2)
-                variable_sheet = sheet.cell_value(row_idx, variables_table_col + 3)
-                config_dict["data"][0]["variables"].append({"name": variable_name.strip(), "valueCellRow": variable_row,
-                                                            "valueCellColumn": variable_col, "sheetName": variable_sheet})
+                var_row = int(sheet.cell_value(row_idx, variables_table_col + 1))
+                var_col = sheet.cell_value(row_idx, variables_table_col + 2)
+                var_sheet = sheet.cell_value(row_idx, variables_table_col + 3).strip()
+                config_dict["data"][0]["variables"].append({"name": variable_name.strip(), "valueCellRow": var_row,
+                                                            "valueCellColumn": var_col, "sheetName": var_sheet})
                 if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has meta items
                     # add all meta items to config_dict
-                    find_meta_item(config_dict, sheet, variable_name)
+                    find_meta_item(config_dict, sheet, variable_name.strip())
 
                 if sheet.cell_value(row_idx, variables_table_col+5).lower() == "yes":  # variable has a variable comment
-                    find_variable_comment(config_dict, sheet, variable_name)
+                    find_variable_comment(config_dict, sheet, variable_name.strip())
             else:
                 cell_is_empty = True  # no more variables present in this sheet
 
@@ -61,7 +61,7 @@ def find_header_value(sheet, config_dict, header_name, header_cell_name, excel_w
     if name_header is not None:  # find header name in sheet
         row, col = name_header
         name = sheet.cell_value(row + 1, col)
-        if name != '':
+        if name != "":
             if isinstance(name, str):  # machine, schedule, mode or report comment
                 config_dict[header_cell_name] = name.strip()
             elif isinstance(name, float):
@@ -71,7 +71,7 @@ def find_header_value(sheet, config_dict, header_name, header_cell_name, excel_w
                     report_date = xlrd.xldate_as_datetime(name, excel_workbook.datemode)
                     config_dict[header_cell_name] = str(report_date)
 
-    if name == '':
+    if name == "":
         cell = find_value_in_sheet(sheet, header_cell_name)
         if cell is not None:  # find machine name row and column in sheet
             row, col = cell
@@ -85,7 +85,7 @@ def find_header_value(sheet, config_dict, header_name, header_cell_name, excel_w
 def find_meta_item(config_dict, sheet, variable_name):
     # add all meta items to config_dict
     config_dict["data"][0]["variables"][-1]["metaItems"] = []
-    meta_items_table_row, meta_items_table_col = find_value_in_sheet(sheet, 'Meta Items Section')
+    meta_items_table_row, meta_items_table_col = find_value_in_sheet(sheet, "Meta Items Section")
     cell_is_empty = False
     row_num = meta_items_table_row
     while cell_is_empty is False:  # only look in meta items table
@@ -108,7 +108,7 @@ def find_meta_item(config_dict, sheet, variable_name):
 
 def find_variable_comment(config_dict, sheet, variable_name):
     # add variable comment to config_dict
-    comments_table_row, comments_table_col = find_value_in_sheet(sheet, 'Comments Section')
+    comments_table_row, comments_table_col = find_value_in_sheet(sheet, "Comments Section")
     for row_num in range(comments_table_row, sheet.nrows):  # only look in comments table
         found_var = sheet.cell_value(row_num, comments_table_col).strip()
         if found_var == variable_name:
