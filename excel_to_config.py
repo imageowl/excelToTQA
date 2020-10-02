@@ -22,7 +22,7 @@ def excel_to_config_file(excel_file):
         config_dict["data"][0]["variables"] = []
         variables_table_row, variables_table_col = variables_table_cell
         cell_is_empty = False
-        row_idx = variables_table_row+2
+        row_idx = variables_table_row + 2
         while cell_is_empty is False:  # add all variables to config_dict
             variable_name = sheet.cell_value(row_idx, variables_table_col).strip()
             if len(variable_name) != 0:
@@ -31,11 +31,11 @@ def excel_to_config_file(excel_file):
                 var_sheet = sheet.cell_value(row_idx, variables_table_col + 3).strip()
                 config_dict["data"][0]["variables"].append({"name": variable_name.strip(), "valueCellRow": var_row,
                                                             "valueCellColumn": var_col, "sheetName": var_sheet})
-                if sheet.cell_value(row_idx, variables_table_col+4).lower() == "yes":  # variable has meta items
+                if sheet.cell_value(row_idx, variables_table_col + 4).lower() == "yes":  # variable has meta items
                     # add all meta items to config_dict
                     find_meta_item(config_dict, sheet, variable_name.strip())
 
-                if sheet.cell_value(row_idx, variables_table_col+5).lower() == "yes":  # variable has a variable comment
+                if sheet.cell_value(row_idx, variables_table_col + 5).lower() == "yes":  # variable has a variable comment
                     find_variable_comment(config_dict, sheet, variable_name.strip())
             else:
                 cell_is_empty = True  # no more variables present in this sheet
@@ -55,23 +55,23 @@ def find_value_in_sheet(sheet, val):
 
 
 def find_header_value(sheet, config_dict, header_name, header_cell_name, excel_workbook=None):
-    name = ""
+    header_value = ""
 
-    name_header = find_value_in_sheet(sheet, header_name)
-    if name_header is not None:  # find header name in sheet
-        row, col = name_header
-        name = sheet.cell_value(row + 1, col)
-        if name != "":
-            if isinstance(name, str):  # machine, schedule, mode or report comment
-                config_dict[header_cell_name] = name.strip()
-            elif isinstance(name, float):
-                if name < 2:  # finalize
-                    config_dict[header_cell_name] = int(name)
+    value_header = find_value_in_sheet(sheet, header_name)
+    if value_header is not None:  # find header name in sheet
+        row, col = value_header
+        header_value = sheet.cell_value(row + 1, col)
+        if header_value != "":
+            if isinstance(header_value, str):  # machine, schedule, mode or report comment
+                config_dict[header_cell_name] = header_value.strip()
+            elif isinstance(header_value, float):
+                if header_value < 2:  # finalize
+                    config_dict[header_cell_name] = int(header_value)
                 else:  # report date
-                    report_date = xlrd.xldate_as_datetime(name, excel_workbook.datemode)
+                    report_date = xlrd.xldate_as_datetime(header_value, excel_workbook.datemode)
                     config_dict[header_cell_name] = str(report_date)
 
-    if name == "":
+    if header_value == "":
         cell = find_value_in_sheet(sheet, header_cell_name)
         if cell is not None:  # find machine name row and column in sheet
             row, col = cell
