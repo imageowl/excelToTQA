@@ -85,17 +85,21 @@ def upload_excel_file(excel_file, config_file):
     report_date = report_date.strftime('%Y-%m-%dT%H:%M')  # format date
 
     print("Schedule id: ", schedule_id)
-    print("Variables: ", final_variable_list)
     print("Report Comment: ", report_comment)
     print("Finalize: ", finalize)
     print("Mode: ", mode)
-    print("Report Date: ", report_date)
+    print("Report Date: ", report_date, '\n')
+    json_print(final_variable_list)
 
     # upload the data retrieved from the excel sheet
     response = tqa.upload_test_results(schedule_id=schedule_id, variable_data=final_variable_list,
                                        comment=report_comment, finalize=finalize, mode=mode, date=report_date,
                                        date_format='%Y-%m-%dT%H:%M')
     return response
+
+
+def json_print(j):
+    print(json.dumps(j, indent=4))
 
 
 def load_json_file(config_file):
@@ -192,6 +196,8 @@ def check_for_variable_duplicates(variables_list):
                 elif key == 'metaItems':  # check to see if meta item already exists
                     for var_item in var_dict['metaItems']:
                         new_meta_item = True
+                        if 'metaItems' not in temp_dict[var_dict['id']]:
+                            temp_dict[var_dict['id']]['metaItems'] = []
                         for item in temp_dict[var_dict['id']]['metaItems']:
                             if var_item['id'] == item['id']:  # meta item already in metaItems
                                 if not isinstance(item['value'], list):  # create list with all meta item values
