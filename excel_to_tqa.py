@@ -19,19 +19,21 @@ def upload_excel_file(excel_file, config_file):
     excel_workbook = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
 
-    machine_name = get_header_value(config_dict, excel_workbook, 'machine')
-    machine_id = tqa.get_machine_id_from_str(machine_name)
-    schedule_name = get_header_value(config_dict, excel_workbook, 'schedule')
-    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)
+    # get the schedule id using the machine id and schedule name
+    machine_name = get_header_value(config_dict, excel_workbook, 'machine')  # get the machine name
+    machine_id = tqa.get_machine_id_from_str(machine_name)  # use the machine name to get the machine id
+    schedule_name = get_header_value(config_dict, excel_workbook, 'schedule')  # get the schedule name
+    schedule_id = tqa.get_schedule_id_from_string(schedule_name, machine_id)  # get the schedule id
+
     if schedule_id is None:
         error_msg = "The schedule name and machine name must be in the config file, or their locations in the excel " \
                     "file must be in the config file."
         raise ValueError("Error: The schedule id could not be found.", error_msg)
 
-    for variable in config_data_dict['variables']:
+    for variable in config_data_dict['variables']:  # get all the variables and their data
         variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), schedule_id)[0]
+        excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())  # sheet the variable data is in
 
-        excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())
         if 'range' not in variable:  # variable only has one value
             variable_value = get_cell_value(variable['valueCellRow'], variable['valueCellColumn'], excel_sheet)[0]
         else:  # variable has multiple values
@@ -40,36 +42,38 @@ def upload_excel_file(excel_file, config_file):
         variable_list.append({'id': variable_id, 'value': variable_value})
 
         if 'metaItems' in variable:
+            # get all the variable meta items and their values in the excel sheet
             meta_items = get_meta_item_values(schedule_id, variable_id, variable, excel_workbook)
-
             variable_list[-1]['metaItems'] = meta_items
 
         if 'comment' in variable:
+            # get the variable comment
             excel_sheet = excel_workbook.sheet_by_name(variable['comment']['sheetName'].strip())
             variable_comment = get_cell_value(variable['comment']['varCommentCellRow'],
                                               variable['comment']['varCommentCellColumn'], excel_sheet)[0]
             variable_list[-1]['comment'] = variable_comment
 
-    # get all the inputs needed for tqa.upload_test_results
+    # look for duplicate variables in the variable_list and merge any found
     final_variable_list = check_for_variable_duplicates(variable_list)
 
+    # get all the inputs needed for tqa.upload_test_results
     report_comment = get_header_value(config_dict, excel_workbook, 'reportComment')
     if report_comment is None:
-        report_comment = ""
+        report_comment = ""  # default if there are no report comments
 
     finalize = get_header_value(config_dict, excel_workbook, 'finalize')
     if finalize is None:
-        finalize = 0
+        finalize = 0  # default if finalize is not specified
     else:
         finalize = int(finalize)
 
     mode = get_header_value(config_dict, excel_workbook, 'mode')
     if mode is None:
-        mode = 'save_append'
+        mode = 'save_append'  # default if mode is not specified
 
     date = get_header_value(config_dict, excel_workbook, 'date')
     if date is None:
-        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))
+        report_date = datetime.datetime.fromtimestamp(os.path.getmtime(excel_file))  # default if date is not specified
     if isinstance(date, float):
         report_date = xlrd.xldate_as_datetime(date, excel_workbook.datemode)
     if isinstance(date, str):
@@ -83,9 +87,10 @@ def upload_excel_file(excel_file, config_file):
     print("Mode: ", mode)
     print("Report Date: ", report_date)
 
-    response = tqa.upload_test_results(schedule_id=schedule_id, variable_data=final_variable_list, comment=report_comment,
-                                       finalize=finalize, mode=mode, date=report_date, date_format='%Y-%m-%dT%H:%M')
-    # response = 0
+    # upload the data retrieved from the excel sheet
+    response = tqa.upload_test_results(schedule_id=schedule_id, variable_data=final_variable_list,
+                                       comment=report_comment, finalize=finalize, mode=mode, date=report_date,
+                                       date_format='%Y-%m-%dT%H:%M')
     return response
 
 
