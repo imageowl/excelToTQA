@@ -31,7 +31,11 @@ def upload_excel_file(excel_file, config_file):
         raise ValueError("Error: The schedule id could not be found.", error_msg)
 
     for variable in config_data_dict['variables']:  # get all the variables and their data
-        variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), schedule_id)[0]
+        variable_id = tqa.get_variable_id_from_string(variable['name'].strip(), schedule_id)
+        if len(variable_id) > 0:
+            variable_id = variable_id[0]
+        else:
+            raise KeyError("Error: No id was found for the specified variable name: " + str(variable["name"]))
         excel_sheet = excel_workbook.sheet_by_name(variable['sheetName'].strip())
 
         if 'range' not in variable:  # variable only has one value
