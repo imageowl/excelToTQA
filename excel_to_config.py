@@ -25,7 +25,7 @@ def excel_to_config_file(excel_file):
         variables_table_row, variables_table_col = variables_table_cell
 
         cell_is_empty = False
-        row_idx = variables_table_row + 2
+        row_idx = variables_table_row + 2  # start at first row of variables table
         while cell_is_empty is False:  # move down the column adding variables to the list until an empty cell is found
             variable_name = sheet.cell_value(row_idx, variables_table_col).strip()
             if len(variable_name) != 0:  # variable name found
@@ -90,11 +90,11 @@ def find_meta_item(config_dict, sheet, variable_name):
     config_dict["data"][0]["variables"][-1]["metaItems"] = []
     meta_items_table_row, meta_items_table_col = find_phrase_in_sheet(sheet, "Meta Items Section")
     cell_is_empty = False
-    row_num = meta_items_table_row
-    while cell_is_empty is False:  # only look in meta items table
+    row_num = meta_items_table_row + 2  # start at first row of meta items table
+    while cell_is_empty is False:  # move down the column adding meta items to the list until an empty cell is found
         found_var = sheet.cell_value(row_num, meta_items_table_col).strip()
         if len(found_var) != 0:
-            if found_var == variable_name:
+            if found_var == variable_name:  # check if each meta item is associated with specified variable
                 meta_item_var_name = sheet.cell_value(row_num, meta_items_table_col + 1).strip()
                 meta_items_row = int(sheet.cell_value(row_num, meta_items_table_col + 2))
                 meta_items_col = sheet.cell_value(row_num, meta_items_table_col + 3)
@@ -104,9 +104,9 @@ def find_meta_item(config_dict, sheet, variable_name):
                                                                              "valueColumn": meta_items_col,
                                                                              "sheetName": meta_items_sheet})
         else:
-            cell_is_empty = True
+            cell_is_empty = True  # no more meta items present in this sheet
 
-        row_num += 1
+        row_num += 1  # check next row for another meta item
 
 
 def find_variable_comment(config_dict, sheet, variable_name):
@@ -114,7 +114,7 @@ def find_variable_comment(config_dict, sheet, variable_name):
     comments_table_row, comments_table_col = find_phrase_in_sheet(sheet, "Comments Section")
     for row_num in range(comments_table_row, sheet.nrows):  # only look in comments table
         found_var = sheet.cell_value(row_num, comments_table_col).strip()
-        if found_var == variable_name:
+        if found_var == variable_name:  # check if each comment is associated with specified variable
             comment_row = int(sheet.cell_value(row_num, comments_table_col + 1))
             comment_col = sheet.cell_value(row_num, comments_table_col + 2)
             comment_sheet = sheet.cell_value(row_num, comments_table_col + 3)
@@ -127,7 +127,7 @@ def write_to_json_file(config_dict):
     # takes the data in the config_dict and writes it to a local file in JSON format
     json_object = json.dumps(config_dict, indent=4)
 
-    with open("config_file.json", "w") as outfile:
+    with open("config_output_file.json", "w") as outfile:
         outfile.write(json_object)
 
 
