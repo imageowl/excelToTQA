@@ -9,12 +9,15 @@ TQA_PATH = r'/Users/annafronhofer/PycharmProjects/pyTQA'
 sys.path.insert(0, TQA_PATH)
 
 import tqa
+import excel_to_config
 
 
 def upload_excel_file(excel_file, config_file):
     # get the data from the excel file and upload it to Smari
 
-    config_dict = load_json_file(config_file)  # put the info from the config file into a dictionary
+    file = set_file_format(config_file)  # if config_file is excel, change to JSON
+
+    config_dict = load_json_file(file)  # put the info from the config file into a dictionary
     config_data_dict = config_dict['data'][0]
     excel_workbook = xlrd.open_workbook(excel_file)
     variable_list = []  # python list of variables to be used in tqa.upload_test_results
@@ -109,6 +112,18 @@ def upload_excel_file(excel_file, config_file):
 
 def json_print(j):
     print(json.dumps(j, indent=4))
+
+
+def set_file_format(file_path):
+    # make sure file is in JSON format
+
+    file_ext = os.path.splitext(file_path)[1]
+    if (file_ext == '.json') or (file_ext == '.JSON'):
+        return file_path
+    else:
+        # convert excel config file to JSON config file
+        excel_to_config.excel_to_config_file(file_path)
+        return "config_output_file.json"
 
 
 def load_json_file(config_file):
