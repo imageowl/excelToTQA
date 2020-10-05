@@ -8,86 +8,86 @@
   "data": [
     {
       "finalize": {
+        "sheetName": "Sheet 1",
         "cellRow": 1,
-        "cellColumn": "E",
-        "sheetName": "Sheet 1"
+        "cellColumn": "E"
       },
       "mode": {
+        "sheetName": "Sheet 1",
         "cellRow": 1,
-        "cellColumn": "F",
-        "sheetName": "Sheet 1"
+        "cellColumn": "F"
       },
       "machine": {
+        "sheetName": "Sheet 1",
         "cellRow": 1,
-        "cellColumn": "A",
-        "sheetName": "Sheet 1"
+        "cellColumn": "A"
       },
       "schedule": {
+        "sheetName": "Sheet 1",
         "cellRow": 1,
-        "cellColumn": "B",
-        "sheetName": "Sheet 1"
+        "cellColumn": "B"
       },
       "date": {
+        "sheetName": "Sheet 1",
         "cellRow": 1,
-        "cellColumn": "C",
-        "sheetName": "Sheet 1"
+        "cellColumn": "C"
       },
       "reportComment": {
+        "sheetName": "Sheet 1",
         "cellRow": 1,
-        "cellColumn": "D",
-        "sheetName": "Sheet 1"
+        "cellColumn": "D"
       },
       "variables": [
         {
           "name": "Variable A",
+          "sheetName": "Sheet 1",
           "range": {
             "valueStartRow": 2,
             "valueStartColumn": "B",
             "valueEndRow": 2,
             "valueEndColumn": "C"
-          },
-        "sheetName": "Sheet 1"
+          }
         },
         {
           "name": "Variable B",
+          "sheetName": "Sheet 1",
           "valueCellRow": 3,
           "valueCellColumn": "B",
-          "sheetName": "Sheet 1",
           "metaItems": [
             {
               "name": "Variable B1",
+              "sheetName": "Sheet 1",
               "valueCellRow": 4,
-              "valueCellColumn": "B",
-              "sheetName": "Sheet 1"
+              "valueCellColumn": "B"
             }
           ]
         },
         {
           "name": "Variable C",
+          "sheetName": "Sheet 1",
           "valueCellRow": 2,
           "valueCellColumn": "C",
-          "sheetName": "Sheet 1",
           "comment": {
+            "sheetName": "Sheet 1",
             "varCommentCellRow": 2,
-            "varCommentCellColumn": "D",
-            "sheetName": "Sheet 1"
+            "varCommentCellColumn": "D"
           }
         },
         {
           "name": "Variable D",
+          "sheetName": "Sheet 1",
           "valueCellRow": 3,
           "valueCellColumn": "C",
-          "sheetName": "Sheet 1",
           "metaItems": [
             {
               "name": "Variable D1",
+              "sheetName": "Sheet 1",
               "range": {
                 "valueStartRow": 3,
                 "valueStartColumn": "D",
                 "valueEndRow": 3,
                 "valueEndColumn": "F"
-              },
-              "sheetName": "Sheet 1"
+              }
             }
           ]
         }
